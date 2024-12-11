@@ -1,0 +1,3 @@
+[submodule "libraries/fcfUnion"]
+	path = libraries/fcfUnion
+	url = https://github.com/fcf-framework/fcfUnion.git
