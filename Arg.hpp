@@ -183,6 +183,7 @@ namespace fcf {
 
         Arg(const Arg& a_arg)
           : BaseArg(a_arg){
+          container = true;
           value = a_arg.value;
           pointer  = &value;
         }
@@ -223,6 +224,7 @@ namespace fcf {
 
         Arg(const Arg& a_arg)
           : BaseArg(a_arg){
+          container = true;
           value = a_arg.value;
           pointer  = &value;
         }
@@ -522,6 +524,11 @@ namespace fcf {
       return a;
     }
 
+    template <typename Ty, typename... TParamPack>
+    Arg<Ty> valArg(const Ty& a_value, TParamPack... a_paramPack){
+      Arg<Ty> a(a_value, false, a_paramPack...);
+      return a;
+    }
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
       BaseArg::~BaseArg() {

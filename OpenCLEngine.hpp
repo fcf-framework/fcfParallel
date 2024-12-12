@@ -165,7 +165,7 @@ namespace fcf {
                                    &iresult);*/
 
               if (!mem) {
-                throw std::runtime_error(std::string() + "clCreateBuffer(" + std::to_string(a_argIndex) + ") failed: " + openCLErrorToString(iresult));
+                throw std::runtime_error(std::string() + "clCreateBuffer(" + std::to_string(a_argIndex) + ") failed (for container): " + openCLErrorToString(iresult));
               }
               memSize = dsize;
               iresult = clEnqueueWriteBuffer(a_device->queue,

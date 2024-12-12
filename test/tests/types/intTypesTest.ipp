@@ -1,4 +1,4 @@
-#include "../macro.hpp"
+#include "../../macro.hpp"
 #include <fcfParallel/parallel.hpp>
 
 FCF_PARALLEL_UNIT(
@@ -29,8 +29,7 @@ FCF_PARALLEL_UNIT(
   }
 )
 
-void typesTest(){
-  std::cout << "Start test" << std::endl;
+void intTypesTest(){
   {
     const char* units[]={"types_int_test", "types_unsigned_int_test"};
     for(size_t i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
@@ -48,8 +47,8 @@ void typesTest(){
       fcf::Parallel::Call call;
       call.name = units[i];
       call.size = tsize;
-      executor(call, 
-               7, 
+      executor(call,
+               7,
                fcf::Parallel::refArg(source, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),
                fcf::Parallel::refArg(destination1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL), fcf::Parallel::ArgUpload(true)),
                fcf::Parallel::refArg(destination2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL), fcf::Parallel::ArgUpload(true))
@@ -71,14 +70,14 @@ void typesTest(){
       std::vector<unsigned int> destination1(tsize);
       std::vector<unsigned int> destination2(tsize);
 
-      for(unsigned int i = 0; i < (int)tsize; ++i) {
+      for(unsigned int i = 0; i < (unsigned int)tsize; ++i) {
         source[i] = i + 1;
       }
       fcf::Parallel::Call call;
-      call.name = "types_unsigned_int_test";
+      call.name = units[i];
       call.size = tsize;
-      executor(call, 
-               7, 
+      executor(call,
+               7,
                fcf::Parallel::refArg(source, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),
                fcf::Parallel::refArg(destination1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL), fcf::Parallel::ArgUpload(true)),
                fcf::Parallel::refArg(destination2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL), fcf::Parallel::ArgUpload(true))
@@ -89,4 +88,45 @@ void typesTest(){
       }
     }
   }
+  {
+    const char* units[]={"types_int_test", "types_unsigned_int_test"};
+    for(size_t i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
+      size_t tsize = 1000;
+      fcf::Parallel::Executor executor;
+      executor.initialize();
+
+      std::vector<int> source(tsize);
+      std::vector<int> destination1(tsize);
+      std::vector<int> destination2(tsize);
+      int*             destination2Ptr = &destination2[0];
+
+      for(int i = 0; i < (int)tsize; ++i) {
+        source[i] = i + 1;
+      }
+      fcf::Parallel::Call call;
+      call.name = units[i];
+      call.size = tsize;
+      executor(call,
+               7,
+               fcf::Parallel::valArg(&source[0], 
+                                     fcf::Parallel::ArgLength(tsize)
+                                    ),
+               fcf::Parallel::valArg(&destination1[0],
+                                     fcf::Parallel::ArgLength(tsize),
+                                     fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL),
+                                     fcf::Parallel::ArgUpload(true)
+                                    ),
+               fcf::Parallel::refArg(destination2Ptr,
+                                     fcf::Parallel::ArgLength(tsize),
+                                     fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL),
+                                     fcf::Parallel::ArgUpload(true)
+                                    )
+              );
+      for(int i = 0; i < (unsigned int)tsize; ++i) {
+        FCF_PARALLEL_TEST(destination1[i] == 7);
+        FCF_PARALLEL_TEST(destination2[i] == i + 1);
+      }
+    }
+  }
+
 }

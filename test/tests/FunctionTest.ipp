@@ -1,5 +1,5 @@
-#include "../Details/Function.hpp"
-#include "macro.hpp"
+#include "../../Details/Function.hpp"
+#include "../macro.hpp"
 
 void test(std::string& a_dst, const char* a_source) {
   a_dst = a_source;

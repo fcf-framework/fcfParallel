@@ -9,13 +9,13 @@
 #include <random>
 
 
-#include "fillTest.ipp"
-#include "./tests/types.ipp"
-#include "FunctionTest.ipp"
-#include "DistributorTest.ipp"
-#include "SimpleEngineTest.ipp"
-#include "splitPackageTest.ipp"
-#include "FunctionDescriptorTest.ipp"
+#include "./tests/fillTest.ipp"
+#include "./tests/types/intTypesTest.ipp"
+#include "./tests/FunctionTest.ipp"
+#include "./tests/FunctionDescriptorTest.ipp"
+#include "./tests/DistributorTest.ipp"
+#include "./tests/SimpleEngineTest.ipp"
+#include "./tests/splitPackageTest.ipp"
 
 int main(int, char*[]) {
   fillTest();
@@ -24,7 +24,7 @@ int main(int, char*[]) {
   functionDescriptorTest();
   simpleEngineTest();
   splitPackageTest();
-  typesTest();
+  intTypesTest();
   std::cout << "Complete!" << std::endl;
   return 0;
 }
