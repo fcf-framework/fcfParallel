@@ -57,6 +57,42 @@ namespace fcf {
       size_t value;
     };
 
+    template <typename Ty>
+    class Arg;
+
+    namespace Details {
+      template <typename Ty>
+      struct StaticCompatible {
+        StaticCompatible() {
+          const char* origArgs[FCF_PARALLEL_MAX_TYPE_COMPATIBLE];
+          Arg<Ty>().types(origArgs, typesc);
+          for(size_t i = 0; i < typesc; ++i) {
+            size_t index = i*2;
+            size_t l = strlen(origArgs[i]);
+            if (l + 1 >= FCF_PARALLLEL_MAX_TYPE_LENGTH - 1) {
+              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1)); 
+            }
+            std::strcpy(types[index], origArgs[i]);
+            types[index][l] = '*';
+            types[index][l+1] = 0;
+
+            index += 1;
+            l += 6;
+            if (l + 1 >= FCF_PARALLLEL_MAX_TYPE_LENGTH - 1) {
+              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1)); 
+            }
+            std::strcpy(types[index], "const ");
+            std::strcpy(&types[index][6], origArgs[i]);
+            types[index][l] = '*';
+            types[index][l+1] = 0;
+          }
+          typesc *= 2;
+        }
+        size_t typesc;
+        char   types[FCF_PARALLEL_MAX_TYPE_COMPATIBLE][FCF_PARALLLEL_MAX_TYPE_LENGTH];
+      };
+    }
+
     class BaseArg {
       public:
         BaseArg()
@@ -125,36 +161,16 @@ namespace fcf {
         }
 
         virtual void types(const char* a_args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          Arg<argument_type>().types(a_args, a_dstArgsCount);
+          static Details::StaticCompatible<argument_item_type> staticCompatible;
+          a_dstArgsCount = staticCompatible.typesc;
+          for(size_t i = 0; i < a_dstArgsCount; ++i){
+            a_args[i] = staticCompatible.types[i];
+          }
         }
 
         argument_type       pvalue;
         std::shared_ptr<Ty> data;
     };
-
-    namespace Details {
-      template <typename Ty>
-      struct StaticCompatible {
-        StaticCompatible() {
-          const char* origArgs[FCF_PARALLEL_MAX_TYPE_COMPATIBLE];
-          Arg<Ty>().types(origArgs, typesc);
-          for(size_t i = 0; i < typesc; ++i) {
-            std::strcpy(types[i], origArgs[i]);
-            size_t l = strlen(types[i]);
-            types[i][l] = '*';
-            types[i][l+1] = 0;
-
-            std::strcpy(types[i], "const ");
-            std::strcpy(&types[i][6], origArgs[i]);
-            l = strlen(types[i]);
-            types[i][l] = '*';
-            types[i][l] = 0;
-          }
-        }
-        size_t typesc;
-        char   types[FCF_PARALLLEL_MAX_TYPE_LENGTH][FCF_PARALLEL_MAX_TYPE_COMPATIBLE];
-      };
-    }
 
     template <typename Ty>
     class Arg<Ty*> : public BaseArg {

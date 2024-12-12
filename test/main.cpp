@@ -1,5 +1,4 @@
 #define FCF_PARALLEL_IMPLEMENTATION
-#pragma warning(disable:4464)
 #include <fcfParallel/Details/Function.hpp>
 #include <iostream>
 
@@ -11,6 +10,7 @@
 
 
 #include "fillTest.ipp"
+#include "./tests/types.ipp"
 #include "FunctionTest.ipp"
 #include "DistributorTest.ipp"
 #include "SimpleEngineTest.ipp"
@@ -24,6 +24,7 @@ int main(int, char*[]) {
   functionDescriptorTest();
   simpleEngineTest();
   splitPackageTest();
+  typesTest();
   std::cout << "Complete!" << std::endl;
   return 0;
 }

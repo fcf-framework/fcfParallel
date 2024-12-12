@@ -37,7 +37,7 @@ namespace fcf {
         PUnit Registrator::get(const char* a_name){
           Units::units_type::iterator it = Details::__fcf_parallel_units.units.find(a_name);
           if (it == Details::__fcf_parallel_units.units.end()){
-            throw std::runtime_error("Unit not found");
+            throw std::runtime_error("Unit name not found");
           }
           return it->second;
         }

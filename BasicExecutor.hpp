@@ -60,6 +60,10 @@ namespace fcf {
         void operator()(const Call& a_call, TArgPack... a_argPack) {
           typedef std::tuple<typename ArgResolver<TArgPack>::arg_type ...> tuple_args_type;
 
+          if (!a_call.name || !a_call.name[0]){
+            throw std::runtime_error("The name parameter is not specified");
+          }
+
           if (a_call.size == 0){
             throw std::runtime_error("The size parameter is not set");
           }
