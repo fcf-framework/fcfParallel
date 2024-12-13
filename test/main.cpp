@@ -18,6 +18,7 @@
 #include "./tests/splitPackageTest.ipp"
 
 void shortTypesTest();
+void charTypesTest();
 
 int main(int, char*[]) {
   fillTest();
@@ -28,6 +29,7 @@ int main(int, char*[]) {
   splitPackageTest();
   intTypesTest();
   shortTypesTest();
+  charTypesTest();
   std::cout << "Complete!" << std::endl;
   return 0;
 }

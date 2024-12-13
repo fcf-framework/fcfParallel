@@ -302,136 +302,6 @@ namespace fcf {
         }
     };
 
-
-    template <>
-    class Arg<const char*> : public BaseArg {
-      public:
-        Arg() {
-          pvalue  = &value[0];
-        }
-
-        Arg(const Arg& a_arg)
-          : BaseArg(a_arg)
-          , pvalue(a_arg.pvalue)
-          , value(a_arg.value) {
-          if (&a_arg.pvalue == a_arg.pointer){
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-        }
-
-
-        template <typename... TParamPack>
-        Arg(const char*& a_value, bool a_refMode, TParamPack... a_paramPack) {
-          size      = 1;
-          itemSize  = 1;
-          length    = 0;
-          container = true;
-          if (a_refMode) {
-            pointer = &a_value;
-            pvalue  = &value[0];
-          } else {
-            value   = a_value;
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-
-          typedef std::tuple<TParamPack ...> tuple_param_type;
-          tuple_param_type tupleParams{a_paramPack...};
-          Details::tupleCall(tupleParams, this);
-        }
-
-        Arg(const char*& a_value, size_t a_size, bool a_refMode) {
-          size      = 1;
-          itemSize  = 1;
-          length    = a_size;
-          container = true;
-          if (a_refMode) {
-            pointer = &a_value;
-            pvalue  = &value[0];
-          } else {
-            value   = a_value;
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-        }
-
-        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          a_dstArgsCount = 2;
-          args[0] = "const char*";
-          args[1] = "const unsigned char*";
-        }
-
-      protected:
-        const char* pvalue;
-        std::string value;
-    };
-
-    template <>
-    class Arg<char*> : public BaseArg {
-      public:
-        Arg() {
-          pvalue  = &value[0];
-        }
-
-        Arg(const Arg& a_arg)
-          : BaseArg(a_arg)
-          , pvalue(a_arg.pvalue)
-          , value(a_arg.value) {
-          if (&a_arg.pvalue == a_arg.pointer){
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-        }
-
-        template <typename... TParamPack>
-        Arg(char*& a_value, bool a_refMode, TParamPack... a_paramPack) {
-          size      = 1;
-          itemSize  = 1;
-          length    = 0;
-          container = true;
-          if (a_refMode) {
-            pointer = &a_value;
-            pvalue  = &value[0];
-          } else {
-            value   = a_value;
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-
-          typedef std::tuple<TParamPack ...> tuple_param_type;
-          tuple_param_type tupleParams{a_paramPack...};
-          Details::tupleCall(tupleParams, this);
-        }
-
-        Arg(const char*& a_value, size_t a_size, bool a_refMode) {
-          size      = 1;
-          itemSize  = 1;
-          length    = a_size;
-          container = true;
-          if (a_refMode) {
-            pointer = &a_value;
-            pvalue  = &value[0];
-          } else {
-            value   = a_value;
-            pvalue  = &value[0];
-            pointer = &pvalue;
-          }
-        }
-
-        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          a_dstArgsCount = 4;
-          args[0] = "char*";
-          args[1] = "const char*";
-          args[2] = "unsigned char*";
-          args[3] = "const unsigned char*";
-        }
-
-      protected:
-        const char* pvalue;
-        std::string value;
-    };
-
     template <>
     class Arg<char> : public SimpleArg<char> {
       public:
@@ -455,6 +325,27 @@ namespace fcf {
         }
     };
 
+    template <>
+    class Arg<short> : public SimpleArg<short> {
+      public:
+        using SimpleArg::SimpleArg;
+        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
+          a_dstArgsCount = 2;
+          args[0] = "short";
+          args[1] = "unsigned short";
+        }
+    };
+
+    template <>
+    class Arg<unsigned short> : public SimpleArg<unsigned short> {
+      public:
+        using SimpleArg::SimpleArg;
+        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
+          a_dstArgsCount = 2;
+          args[0] = "unsigned short";
+          args[1] = "short";
+        }
+    };
 
     template <>
     class Arg<int> : public SimpleArg<int> {
@@ -475,28 +366,6 @@ namespace fcf {
           a_dstArgsCount = 2;
           args[0] = "unsigned int";
           args[1] = "int";
-        }
-    };
-
-    template <>
-    class Arg<short> : public SimpleArg<short> {
-      public:
-        using SimpleArg::SimpleArg;
-        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          a_dstArgsCount = 2;
-          args[0] = "short";
-          args[1] = "unsigned short";
-        }
-    };
-
-    template <>
-    class Arg<unsigned short> : public SimpleArg<unsigned short> {
-      public:
-        using SimpleArg::SimpleArg;
-        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          a_dstArgsCount = 2;
-          args[0] = "unsigned short";
-          args[1] = "short";
         }
     };
 
