@@ -17,6 +17,8 @@
 #include "./tests/SimpleEngineTest.ipp"
 #include "./tests/splitPackageTest.ipp"
 
+void shortTypesTest();
+
 int main(int, char*[]) {
   fillTest();
   functionTest();
@@ -25,6 +27,7 @@ int main(int, char*[]) {
   simpleEngineTest();
   splitPackageTest();
   intTypesTest();
+  shortTypesTest();
   std::cout << "Complete!" << std::endl;
   return 0;
 }

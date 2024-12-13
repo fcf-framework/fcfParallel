@@ -1,5 +1,7 @@
 find_package(OpenCL REQUIRED)
 include_directories(${OpenCL_INCLUDE_DIR})
-add_executable("parallel-test" impl.cpp  main.cpp)
+add_executable("parallel-test" impl.cpp
+                               main.cpp
+                               tests/types/shortTypesTest.cpp)
 target_link_libraries("parallel-test" ${OpenCL_LIBRARY})
 

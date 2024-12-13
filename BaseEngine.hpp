@@ -86,7 +86,7 @@ namespace fcf {
             }
           }
           if (!found){
-            throw std::runtime_error(std::string("Type does not match for argument ") + std::to_string(i+1));
+            throw std::runtime_error(std::string("Type does not match for argument ") + std::to_string(i+1) + ". Expected type " + types1[0]);
           }
         }
       }
