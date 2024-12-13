@@ -5,6 +5,7 @@ add_executable("parallel-test" impl.cpp
                                tests/types/charTypesTest.cpp
                                tests/types/shortTypesTest.cpp
                                tests/types/intTypesTest.cpp
+                               tests/types/floatTypesTest.cpp
                               )
 target_link_libraries("parallel-test" ${OpenCL_LIBRARY})
 

@@ -380,6 +380,17 @@ namespace fcf {
     };
 
     template <>
+    class Arg<float> : public SimpleArg<float> {
+      public:
+        using SimpleArg::SimpleArg;
+        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
+          a_dstArgsCount = 1;
+          args[0] = "float";
+        }
+    };
+
+
+    template <>
     class Arg<double> : public SimpleArg<double> {
       public:
         using SimpleArg::SimpleArg;

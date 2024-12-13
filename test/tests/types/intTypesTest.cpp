@@ -30,6 +30,7 @@ FCF_PARALLEL_UNIT(
 )
 
 void intTypesTest(){
+  std::cout << "Start intTypesTest..." << std::endl;
   {
     const char* units[]={"types_int_test", "types_unsigned_int_test"};
     for(size_t i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
