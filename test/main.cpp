@@ -10,15 +10,15 @@
 
 
 #include "./tests/fillTest.ipp"
-#include "./tests/types/intTypesTest.ipp"
 #include "./tests/FunctionTest.ipp"
 #include "./tests/FunctionDescriptorTest.ipp"
 #include "./tests/DistributorTest.ipp"
 #include "./tests/SimpleEngineTest.ipp"
 #include "./tests/splitPackageTest.ipp"
 
-void shortTypesTest();
 void charTypesTest();
+void shortTypesTest();
+void intTypesTest();
 
 int main(int, char*[]) {
   fillTest();
