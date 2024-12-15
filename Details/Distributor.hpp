@@ -38,15 +38,33 @@ namespace fcf {
             size_t             deviceSubIndex;
           };
 
+          struct DeviceIndex{
+            size_t engineIndex;
+            size_t deviceIndex;
+          };
+
           struct Call {
-            const char*        name;
-            unsigned long long count;
-            bool               split;
-            Stat*              stat;
-            unsigned long long packageSize;
-            unsigned long long packageTime;
-            void               (*function)(const SubTask&, void*);
-            void*              userData;
+            const char*             name;
+            unsigned long long      count;
+            bool                    split;
+            Stat*                   stat;
+            unsigned long long      packageSize;
+            unsigned long long      packageTime;
+            void                    (*function)(const SubTask&, void*);
+            void*                   userData;
+            std::list<DeviceIndex>  ignoreDevice; // Used for the first time at the first call
+                                                  // for a given name and used for the rest of the time¤
+            Call()
+              : name(0)
+              , count(0)
+              , split(false)
+              , stat(0)
+              , packageSize(0)
+              , packageTime(0)
+              , function(0)
+              , userData(0)
+            {
+            }
           };
 
           Distributor();
@@ -95,6 +113,22 @@ namespace fcf {
             unsigned long long minDuration;
             unsigned long long lresult;
             unsigned long long div;
+            bool               ignore;
+            Balance()
+              : attitude(0)
+              , lattitude(0)
+              , deviation(0)
+              , duration(0)
+              , pduration(0)
+              , packageSize(0)
+              , threadCount(0)
+              , step(0)
+              , minDuration(minDuration)
+              , lresult(0)
+              , div(0)
+              , ignore(false)
+            {
+            }
           };
 
           struct Device {
@@ -216,7 +250,16 @@ namespace fcf {
 
           for(std::list<PDevice>::iterator it = _devices.begin(); it != _devices.end(); ++it){
             if ((*it)->balance.find(task->name) == (*it)->balance.end()) {
-              (*it)->balance.insert(std::pair<std::string, PBalance>(task->name, PBalance(new Balance{0, 0, 0, 0, 0, 0, (*it)->threadCount, 0, (*it)->minDuration, 0, 0})));
+              PBalance balance(new Balance());
+              balance->threadCount = (*it)->threadCount;
+              balance->minDuration = (*it)->minDuration;
+              (*it)->balance.insert(std::pair<std::string, PBalance>(task->name, balance));
+
+              for(std::list<DeviceIndex>::const_iterator ignoreIt = a_call.ignoreDevice.begin(); ignoreIt != a_call.ignoreDevice.end(); ++ignoreIt){
+                if (ignoreIt->engineIndex == (*it)->index && ignoreIt->deviceIndex == (*it)->subindex) {
+                  balance->ignore = true;
+                }
+              }
             }
             PBalance balance = (*it)->balance[task->name];
             if (balance->packageSize != a_call.packageSize && balance->duration) {
@@ -298,6 +341,10 @@ namespace fcf {
           if (_task.get() && !_task->errorFlag && _task->offset < _task->size) {
             PTask              task = _task;
             PBalance           balance = a_pdevice->balance[task->name];
+            if (balance->ignore){
+              _condition.wait(a_lock);
+              continue;
+            }
             PSpecBalances      curBalances;
             Balances::iterator curBalancesIterator = balances.find(task->name);
             if (curBalancesIterator == balances.end()) {

@@ -3,8 +3,6 @@
 
 
 namespace {
-
-
   void test001(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, void* a_ud) {
     fcf::Union& output = *(fcf::Union*)a_ud;
     for(size_t i = 0; i < a_subtask.size; ++i) {
@@ -12,20 +10,12 @@ namespace {
       if (!output[index].is<fcf::Undefined>()) {
         throw std::runtime_error("Logic error ");
       }
-      /*
-      for(size_t j = 0; j < 100; ++j) {
-        a_output[a_subtask.offset + i] = a_subtask.offset + i;
-      }
-      */
       output[index] = index;
-
     }
   }
 }
 
 void distributorTest(){
-
-  FCF_PARALLEL_TEST(1 == 1);
   {
     fcf::Parallel::Details::Distributor distributor;
     distributor.addDevice(1, 0, 1, 100*1000);
@@ -39,7 +29,6 @@ void distributorTest(){
     output.ref<fcf::UnionVector>().resize(tnumber);
 
     fcf::Parallel::Details::Distributor::Call call;
-    memset(&call, 0, sizeof(call));
     call.name        = "test001";
     call.count       = tnumber;
     call.split       = false;

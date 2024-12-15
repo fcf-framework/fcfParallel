@@ -12,10 +12,10 @@
 #include "./tests/fillTest.ipp"
 #include "./tests/FunctionTest.ipp"
 #include "./tests/FunctionDescriptorTest.ipp"
-#include "./tests/DistributorTest.ipp"
 #include "./tests/SimpleEngineTest.ipp"
 #include "./tests/splitPackageTest.ipp"
 
+void distributorTest();
 void charTypesTest();
 void shortTypesTest();
 void intTypesTest();

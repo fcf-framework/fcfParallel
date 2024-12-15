@@ -7,47 +7,6 @@
 namespace fcf {
   namespace Parallel {
     namespace Details {
-      /*
-      template <typename TPBalance>
-      unsigned long long fill(std::vector<TPBalance>& a_balances, size_t a_curBalanceIndex, unsigned long long a_packageSize) {
-        TPBalance& balance = a_balances[a_curBalanceIndex];
-        double asum  = 0;
-        unsigned long long sum  = 0;
-        unsigned long long sumc = 0;
-        bool               full = true;
-        for(size_t i = 0; i < a_balances.size(); ++i){
-          if (a_balances[i]->duration){
-            ++sumc;
-          } else {
-            full = false;
-          }
-          sum  += a_balances[i]->duration;
-          asum += a_balances[i]->attitude * a_balances[i]->deviation;
-        }
-        balance->step = full ? std::min((unsigned int)balance->step + 1, (unsigned int)10) : 1;
-
-        double average = (double)sum / (double)sumc;
-        double attitude;
-        double deviation = 0;
-        if (full && sum && balance->duration && sum != balance->duration) {
-          deviation = (double)balance->duration / average;
-          deviation = balance->deviation - balance->deviation / balance->step + deviation / balance->step;
-          balance->deviation = deviation;
-          attitude = balance->attitude / deviation;
-        } else {
-          sum = 0;
-          for(size_t i = 0; i < a_balances.size(); ++i){
-            sum += a_balances[i]->threadCount;
-          }
-          balance->attitude = (double)balance->threadCount / (double)sum;
-          attitude = balance->attitude;
-        }
-        double dresult  = a_packageSize * attitude / 10;
-        return std::min(std::max((unsigned long long)dresult + (std::remainder(dresult, 1) ? 1 : 0), (unsigned long long)1), (unsigned long long)a_packageSize);
-
-
-      }
-      */
       template <typename TPBalance>
       void setDuration(TPBalance& a_curBalance, unsigned long long a_taskDuration, bool a_first = false) {
         double div = a_first ? 10 : a_curBalance->div;
@@ -67,7 +26,6 @@ namespace fcf {
         if (a_packageSize && div >= a_packageSize) {
           return a_packageSize;
         }
-        //std::cout << div << "|" << a_minDuration << std::endl;
         return div;
       }
 
