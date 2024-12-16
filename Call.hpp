@@ -6,18 +6,12 @@
 namespace fcf {
   namespace Parallel {
 
-    struct Stat {
-      unsigned long long packageDuration;
-      unsigned long long minPackageDuration;
-      unsigned long long maxPackageDuration;
-    };
-
     struct Call {
       const char*         name;
       unsigned long long  size;
       unsigned long long  packageSize;
       bool                split;
-      Stat*               stat;
+      Union*              stat;
       Call()
         : name(0) 
         , size(0)

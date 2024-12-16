@@ -44,7 +44,7 @@ void splitPackageTest() {
     executor.getEngine("cpu").property("threads", 4);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Parallel::Stat stat;
+    fcf::Union stat;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;
@@ -81,7 +81,7 @@ void splitPackageTest() {
     executor.getEngine("cpu").property("threads", 4);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Parallel::Stat stat;
+    fcf::Union stat;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;
@@ -116,7 +116,7 @@ void splitPackageTest() {
     FCF_PARALLEL_TEST(executor.getEngine("cpu").property("enable") == true);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Parallel::Stat stat;
+    fcf::Union stat;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;

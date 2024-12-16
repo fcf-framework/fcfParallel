@@ -60,6 +60,10 @@ namespace fcf {
         void operator()(const Call& a_call, TArgPack... a_argPack) {
           typedef std::tuple<typename ArgResolver<TArgPack>::arg_type ...> tuple_args_type;
 
+          if (a_call.stat){
+            *a_call.stat = Union(UT_MAP);
+          }
+
           if (!a_call.name || !a_call.name[0]){
             throw std::runtime_error("The name parameter is not specified");
           }

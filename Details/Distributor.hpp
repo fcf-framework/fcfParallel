@@ -47,7 +47,7 @@ namespace fcf {
             const char*             name;
             unsigned long long      count;
             bool                    split;
-            Stat*                   stat;
+            Union*                  stat;
             unsigned long long      packageSize;
             unsigned long long      packageTime;
             void                    (*function)(const SubTask&, void*);
@@ -84,7 +84,7 @@ namespace fcf {
             unsigned long long              size;
             unsigned long long              packageSize;
             bool                            split;
-            Stat*                           stat;
+            Union*                          stat;
             std::string                     error;
             bool                            errorFlag;
 
@@ -242,8 +242,8 @@ namespace fcf {
           task->readyOffsetEnd = task->packageSize;
           task->name = a_call.name ? a_call.name : "";
 
-          if (task->stat){
-            memset(task->stat, 0, sizeof(Stat));
+          if (task->stat && !task->stat->is(UT_MAP)){
+            task->stat->ref<fcf::UnionMap>();
           }
 
           _task = task;
@@ -270,9 +270,9 @@ namespace fcf {
 
           _startPack = std::chrono::high_resolution_clock::now();
           if (task->stat) {
-            task->stat->maxPackageDuration = 0;
-            task->stat->minPackageDuration = 0;
-            task->stat->packageDuration = 0;
+            (*task->stat)["maxPackageDuration"] = 0;
+            (*task->stat)["minPackageDuration"] = 0;
+            (*task->stat)["packageDuration"] = 0;
           }
 
           _condition.notify_all();
@@ -311,13 +311,23 @@ namespace fcf {
           unsigned long long packagec = std::max(a_task->size / a_task->packageSize, (unsigned long long)1);
           std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
           unsigned long long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - _startPack).count();
-          a_task->stat->minPackageDuration = a_task->stat->minPackageDuration ? std::min(duration, a_task->stat->minPackageDuration)
-                                                                              : duration;
-          a_task->stat->maxPackageDuration = std::max(duration, a_task->stat->maxPackageDuration);
-          if (!a_task->stat->packageDuration){
-            a_task->stat->packageDuration = duration;
+          unsigned long long minPackageDuration = (*a_task->stat)["minPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->stat)["minPackageDuration"]
+                                                    : 0;
+          unsigned long long maxPackageDuration = (*a_task->stat)["maxPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->stat)["maxPackageDuration"]
+                                                    : 0;
+          unsigned long long packageDuration = (*a_task->stat)["packageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->stat)["packageDuration"]
+                                                    : 0;
+          (*a_task->stat)["minPackageDuration"] = minPackageDuration 
+                                                              ? std::min(duration, minPackageDuration)
+                                                              : duration;
+          (*a_task->stat)["maxPackageDuration"] = std::max(duration, maxPackageDuration);
+          if (!packageDuration){
+            (*a_task->stat)["packageDuration"] = duration;
           } else {
-            a_task->stat->packageDuration = a_task->stat->packageDuration - ( a_task->stat->packageDuration/ packagec) + (duration / packagec);
+            (*a_task->stat)["packageDuration"] = packageDuration - (packageDuration/ packagec) + (duration / packagec);
           }
           _startPack = end;
         }
