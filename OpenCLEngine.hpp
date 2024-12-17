@@ -490,7 +490,8 @@ namespace fcf {
                 PDevCommand command;
                 try {
                   command.reset(new DevCommand(_index, a_call, code.c_str(), pdevice));
-                } catch(std::exception) {
+                } catch(const std::exception& e) {
+                  a_distributorCall.lastError = e.what();
                 }
                 itCommand = pdevice->commands.insert(DevCommands::value_type(a_call.name, command)).first;
               }

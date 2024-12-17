@@ -52,6 +52,7 @@ namespace fcf {
             unsigned long long      packageTime;
             void                    (*function)(const SubTask&, void*);
             void*                   userData;
+            std::string             lastError;
             std::list<DeviceIndex>  ignoreDevice; // Used for the first time at the first call
                                                   // for a given name and used for the rest of the time¤
             Call()
@@ -273,7 +274,13 @@ namespace fcf {
           }
 
           if (!devCount){
-            throw std::runtime_error("There are no available devices");
+            std::string exceptionMessage;
+            exceptionMessage = "There are no available devices.";
+            if (!a_call.lastError.empty()) {
+              exceptionMessage += " Last device error: ";
+              exceptionMessage += a_call.lastError;
+            }
+            throw std::runtime_error(exceptionMessage);
           }
 
           _startPack = std::chrono::high_resolution_clock::now();
