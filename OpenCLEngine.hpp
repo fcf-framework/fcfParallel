@@ -3,8 +3,8 @@
 
 #include "macro.hpp"
 
-//#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define CL_TARGET_OPENCL_VERSION 100
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define CL_TARGET_OPENCL_VERSION 120
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
 #else
@@ -31,7 +31,6 @@ namespace fcf {
     class OpenCLEngine: public BaseEngine {
       protected:
 
-
         struct DevArg;
         typedef std::shared_ptr<DevArg> PDevArg;
         typedef std::vector<PDevArg>    DevArgs;
@@ -42,14 +41,16 @@ namespace fcf {
 
         struct Device {
           cl_device_id      device;
+          size_t            deviceIndex;
           cl_context        context;
           cl_command_queue  queue;
           bool              enable;
           DevCommands       commands;
           PDevCommand       currentCommand;
 
-          Device(cl_device_id a_device, cl_context a_context, bool a_enable)
+          Device(cl_device_id a_device, size_t a_deviceIndex, cl_context a_context, bool a_enable)
             : device(a_device)
+            , deviceIndex(a_deviceIndex)
             , context(a_context)
             , queue(0)
             , enable(a_enable)
@@ -78,26 +79,51 @@ namespace fcf {
 
 
         struct DevCommand {
+          cl_program compileProgram;
+          cl_program libraryProgram;
           cl_program program;
           cl_kernel  kernel;
           DevArgs    args;
 
-          DevCommand(const char* a_name, const char* a_code, cl_device_id a_deviceId, cl_context a_context)
-            : program(0)
+          DevCommand(size_t a_engineIndex, const Call& a_call, const char* a_code, PDevice a_device)
+            : compileProgram(0)
+            , libraryProgram(0)
+            , program(0)
             , kernel(0)
           {
             int iresult = CL_SUCCESS;
-            program = clCreateProgramWithSource(a_context, 1, (const char **)&a_code, 0, &iresult);
+            compileProgram = clCreateProgramWithSource(a_device->context, 1, (const char **)&a_code, 0, &iresult);
             if (iresult != CL_SUCCESS) {
               throw std::runtime_error(std::string() + "clCreateProgramWithSource failed: " + openCLErrorToString(iresult));
             }
-
-            iresult = clBuildProgram(program, 1, &a_deviceId, "", NULL, NULL);
+            iresult = clCompileProgram(compileProgram,
+                                       1,
+                                       &a_device->device,
+                                       "",
+                                       0,
+                                       0,
+                                       0,
+                                       0,
+                                       0
+                                      );
+            std::string log;
+            if (iresult != CL_SUCCESS || a_call.stat){
+              log = getOpenCLBuildLog(compileProgram, a_device->device);
+            }
+            if (a_call.stat){
+              if(!(*a_call.stat)["log"].is(UT_VECTOR)){
+                (*a_call.stat)["log"] = Union(UT_VECTOR);
+              }
+              fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+              (*newItemIt)["engineIndex"] = a_engineIndex;
+              (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
+              (*newItemIt)["action"]      = "opencl_compile";
+              (*newItemIt)["message"]     = log;
+            }
             if (iresult != CL_SUCCESS){
-              std::string log = getOpenCLBuildLog(program, a_deviceId);
               _release();
               std::string exceptionMessage;
-              exceptionMessage += "Failed execute clBuildProgram.\n";
+              exceptionMessage += "Failed execute clCompileProgram.\n";
               exceptionMessage += "\n";
               exceptionMessage += "Source code:\n";
               exceptionMessage += a_code;
@@ -108,6 +134,103 @@ namespace fcf {
               throw std::runtime_error(exceptionMessage);
             }
 
+            std::mutex mutex;
+            struct LinkUserData{
+              cl_program* program;
+              std::mutex* mutex;
+            };
+            mutex.lock();
+            LinkUserData lud{&libraryProgram, &mutex};
+            clLinkProgram(a_device->context,
+                          1,
+                          &a_device->device,
+                          "-create-library",
+                          1,
+                          &compileProgram,
+                          [](cl_program a_program, void* a_ud){
+                            LinkUserData* lud = (LinkUserData*)a_ud;
+                            *lud->program = a_program;
+                            lud->mutex->unlock();
+                          },
+                          &lud,
+                          &iresult
+                         );
+            mutex.lock();
+            mutex.unlock();
+            cl_build_status status = CL_BUILD_ERROR;
+            clGetProgramBuildInfo(libraryProgram, a_device->device, CL_PROGRAM_BUILD_STATUS, sizeof(status), &status, 0);
+            if (status != CL_BUILD_SUCCESS && iresult == CL_SUCCESS) {
+              iresult = CL_LINK_PROGRAM_FAILURE;
+            }
+            if (iresult != CL_SUCCESS || a_call.stat) {
+              log = getOpenCLBuildLog(libraryProgram, a_device->device);
+            }
+            if (a_call.stat) {
+              fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+              (*newItemIt)["engineIndex"] = a_engineIndex;
+              (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
+              (*newItemIt)["action"]      = "opencl_link_modules";
+              (*newItemIt)["message"]     = log;
+            }
+            if (iresult != CL_SUCCESS){
+              _release();
+              std::string exceptionMessage;
+              exceptionMessage += "Invalid linking module. Failed execute clLinkProgram.\n";
+              exceptionMessage += "\n";
+              exceptionMessage += "Source code:\n";
+              exceptionMessage += a_code;
+              exceptionMessage += "\n";
+              exceptionMessage += "\n";
+              exceptionMessage += "Link log:\n";
+              exceptionMessage += log;
+              throw std::runtime_error(exceptionMessage);
+            }
+            mutex.lock();
+            lud = LinkUserData{&program, &mutex};
+            clLinkProgram(a_device->context,
+                          1,
+                          &a_device->device,
+                          "",
+                          1,
+                          &libraryProgram,
+                          [](cl_program a_program, void* a_ud){
+                            LinkUserData* lud = (LinkUserData*)a_ud;
+                            *lud->program = a_program;
+                            lud->mutex->unlock();
+                          },
+                          &lud,
+                          &iresult
+                         );
+            mutex.lock();
+            status = CL_BUILD_ERROR;
+            clGetProgramBuildInfo(program, a_device->device, CL_PROGRAM_BUILD_STATUS, sizeof(status), &status, 0);
+            if (status != CL_BUILD_SUCCESS && iresult == CL_SUCCESS) {
+              iresult = CL_LINK_PROGRAM_FAILURE;
+            }
+
+            if (iresult != CL_SUCCESS || a_call.stat) {
+              log = getOpenCLBuildLog(program, a_device->device);
+            }
+            if (a_call.stat) {
+              fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+              (*newItemIt)["engineIndex"] = a_engineIndex;
+              (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
+              (*newItemIt)["action"]      = "opencl_link_program";
+              (*newItemIt)["message"]     = log;
+            }
+            if (iresult != CL_SUCCESS){
+              _release();
+              std::string exceptionMessage;
+              exceptionMessage += "Invalid linking program. Failed execute clLinkProgram.\n";
+              exceptionMessage += "\n";
+              exceptionMessage += "Source code:\n";
+              exceptionMessage += a_code;
+              exceptionMessage += "\n";
+              exceptionMessage += "\n";
+              exceptionMessage += "Link log:\n";
+              exceptionMessage += log;
+              throw std::runtime_error(exceptionMessage);
+            }
             kernel = clCreateKernel(program, "__FCF_PARALLEL_MAIN", &iresult);
             if (iresult) {
               _release();
@@ -127,6 +250,14 @@ namespace fcf {
               if (kernel) {
                 clReleaseKernel(kernel);
                 kernel = 0;
+              }
+              if (compileProgram) {
+                clReleaseProgram(compileProgram);
+                compileProgram = 0;
+              }
+              if (libraryProgram) {
+                clReleaseProgram(libraryProgram);
+                libraryProgram = 0;
               }
               if (program) {
                 clReleaseProgram(program);
@@ -158,12 +289,6 @@ namespace fcf {
                                    dsize,
                                    0,
                                    &iresult);
-/*              mem = clCreateBuffer(a_device->context,
-                                   CL_MEM_USE_HOST_PTR | (a_arg->upload ? (CL_MEM_READ_WRITE) : CL_MEM_READ_ONLY),
-                                   dsize,
-                                   *(char**)a_arg->pointer,
-                                   &iresult);*/
-
               if (!mem) {
                 throw std::runtime_error(std::string() + "clCreateBuffer(" + std::to_string(a_argIndex) + ") failed (for container): " + openCLErrorToString(iresult));
               }
@@ -205,6 +330,7 @@ namespace fcf {
       public:
         OpenCLEngine() {
           _enable = false;
+          _index = 0;
           _properties["name"]        = "opencl";
           _properties["devices"]     = fcf::Union(fcf::UT_VECTOR);
           _properties["threads"]     = 0;
@@ -293,7 +419,7 @@ namespace fcf {
 
               fcf::Union udev(fcf::UT_MAP);
               udev["enable"]  = deviceType != CL_DEVICE_TYPE_CPU;
-              udev["name"]  = deviceName;
+              udev["name"]    = deviceName;
               udev["id"]      = (unsigned long long)devicev[deviceIndex];
               udev["threads"] = (unsigned long long)(deviceComputeUnits * wgSize * 0.2);
               udev["type"]    = deviceType == CL_DEVICE_TYPE_CPU         ? "cpu" :
@@ -309,6 +435,7 @@ namespace fcf {
         }
 
         virtual void initialize(size_t a_index, Details::Distributor* a_distributor) {
+          _index = a_index;
           if (!(bool)_properties["enable"]) {
             return;
           }
@@ -331,25 +458,25 @@ namespace fcf {
             if (iresult || !context) {
               throw std::runtime_error(std::string() + "clCreateContext failed: " + openCLErrorToString(iresult));
             }
-            PDevice pdevice(new Device(deviceId, context, (bool)udev["enable"]));
+            PDevice pdevice(new Device(deviceId, _devices.size(), context, (bool)udev["enable"]));
             _devices.push_back(pdevice);
             if (pdevice->enable) {
               unsigned long long minDuration = udev["minDuration"].isCompatible<unsigned long long>()
                                                 ? (unsigned long long)udev["minDuration"]
                                                 : (unsigned long long)_properties["minDuration"];
-              a_distributor->addDevice(a_index, _devices.size()-1, (unsigned long long)udev["threads"], minDuration);
+              a_distributor->addDevice(a_index, pdevice->deviceIndex, (unsigned long long)udev["threads"], minDuration);
             }
           }
 
           _enable = !!devices.size();
         }
 
-        virtual void prepare(const Call& a_call, BaseArg** a_args, size_t a_argsc) {
+        virtual void prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc) {
           if (!_enable){
             return;
           }
           _packageSize = a_call.packageSize;
-          BaseEngine::prepare(a_call, a_args, a_argsc);
+          BaseEngine::prepare(a_call, a_distributorCall, a_args, a_argsc);
 
           std::string code;
           for(PDevice& pdevice : _devices){
@@ -360,8 +487,15 @@ namespace fcf {
                   PUnit punit = Registrator().get(a_call.name);
                   code = _prepareCode(punit->code);
                 }
-                PDevCommand command(new DevCommand(a_call.name, code.c_str(), pdevice->device, pdevice->context ) );
+                PDevCommand command;
+                try {
+                  command.reset(new DevCommand(_index, a_call, code.c_str(), pdevice));
+                } catch(std::exception) {
+                }
                 itCommand = pdevice->commands.insert(DevCommands::value_type(a_call.name, command)).first;
+              }
+              if (!itCommand->second){
+                a_distributorCall.ignoreDevice.push_back(Details::Distributor::DeviceIndex{_index, pdevice->deviceIndex});
               }
               pdevice->currentCommand = itCommand->second;
             }
@@ -371,7 +505,7 @@ namespace fcf {
         virtual void applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc){
           if (a_first) {
             for(PDevice& pdevice : _devices){
-              if (pdevice->enable) {
+              if (pdevice->enable && pdevice->currentCommand) {
                 pdevice->currentCommand->args.resize(a_argsc);
                 for(size_t argIndex = 0; argIndex < a_argsc; ++argIndex) {
                   PDevArg arg(new DevArg(pdevice.get(), pdevice->currentCommand.get(), a_args[argIndex], argIndex));
@@ -388,6 +522,9 @@ namespace fcf {
           _clargsize = a_subtask.size;
           PDevice&     device  = _devices[a_subtask.deviceSubIndex];
           PDevCommand& command = device->currentCommand;
+          if (!command){
+            throw std::runtime_error("Invalid logic");
+          }
 
           unsigned int lowIndex  = a_subtask.offset & 0xffffffff;
           unsigned int highIndex = a_subtask.offset >> 32;
@@ -476,6 +613,14 @@ namespace fcf {
             "  unsigned int packageIndex;\n"
             "};\n"
             "typedef struct _FCFParallelTask FCFParallelTask;\n"
+            "typedef char fcf_int8;\n"
+            "typedef unsigned char fcf_uint8;\n"
+            "typedef short fcf_int16;\n"
+            "typedef unsigned short fcf_uint16;\n"
+            "typedef int fcf_int32;\n"
+            "typedef unsigned int fcf_uint32;\n"
+            "typedef long fcf_int64;\n"
+            "typedef unsigned long fcf_uint64;\n"
             "inline void FCF_PARALLEL_MAIN(" + fdf.declArgs + ");\n"
             "\n"
             "__kernel void __FCF_PARALLEL_MAIN(unsigned int a_fcf_parallel_low_offset,\n"
@@ -506,6 +651,7 @@ namespace fcf {
       unsigned long long                        _clargsize;
       unsigned long long                        _clargoffset;
       unsigned long long                        _packageSize;
+      size_t                                    _index;
 
     };
 

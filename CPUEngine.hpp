@@ -15,8 +15,8 @@ namespace fcf {
     class CPUEngine: public BaseEngine {
       public:
         CPUEngine() {
-          _properties["name"]    = "cpu";
-          _properties["threads"] = std::thread::hardware_concurrency();
+          _properties["name"]      = "cpu";
+          _properties["threads"]   = std::thread::hardware_concurrency();
         }
 
         virtual void initialize(size_t a_index, Details::Distributor* a_distributor) {
@@ -29,8 +29,8 @@ namespace fcf {
           }
         }
 
-        virtual void prepare(const Call& a_call, BaseArg** a_args, size_t a_argsc) {
-          BaseEngine::prepare(a_call, a_args, a_argsc);
+        virtual void prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc) {
+          BaseEngine::prepare(a_call, a_distributorCall, a_args, a_argsc);
           PUnit punit = Registrator().get(a_call.name);
           _function = punit->function;
           _packageSize = a_call.packageSize;

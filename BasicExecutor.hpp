@@ -2,6 +2,7 @@
 #define ___FCF__PARALLEL__BASIC_EXECUTOR_HRR___
 
 #include <tuple>
+#include <algorithm>
 #include "macro.hpp"
 #include "Details/TupleLoop.hpp"
 #include "Details/Function.hpp"
@@ -109,23 +110,6 @@ namespace fcf {
           _curentArgs = &ppargs;
           _curentArgsCount = sizeof...(TArgPack);
 
-          Details::tupleLoop(
-            _engines,
-            [&pargs, call, this](BaseEngine* a_item, size_t a_index) {
-              if (_enablesv[a_index]) {
-                a_item->prepare(*call, (BaseArg**)&pargs[0], sizeof...(TArgPack));
-              }
-            }
-          );
-          Details::tupleLoop(
-            _engines,
-            [&pargs, call, this](BaseEngine* a_item, size_t a_index) {
-              if (_enablesv[a_index]) {
-                a_item->applyArgs(true, *call, (BaseArg**)&pargs[0], sizeof...(TArgPack));
-              }
-            }
-          );
-
           fcf::Parallel::Details::Distributor::Call dcall;
           dcall.name        = call->name;
           dcall.count       = call->size;
@@ -135,7 +119,76 @@ namespace fcf {
           dcall.function    = _handler;
           dcall.userData    = (void*)this;
           dcall.stat        = call->stat;
+
+          Details::tupleLoop(
+            _engines,
+            [&pargs, &call, &dcall, this](BaseEngine* a_item, size_t a_index) {
+              if (_enablesv[a_index]) {
+                a_item->prepare(*call, dcall, (BaseArg**)&pargs[0], sizeof...(TArgPack));
+              }
+            }
+          );
+
+          Details::tupleLoop(
+            _engines,
+            [&pargs, call, this](BaseEngine* a_item, size_t a_index) {
+              if (_enablesv[a_index]) {
+                a_item->applyArgs(true, *call, (BaseArg**)&pargs[0], sizeof...(TArgPack));
+              }
+            }
+          );
+
           _distributor.call(dcall);
+
+          if (call->stat) {
+            (*call->stat)["devices"] = Union(UT_VECTOR);
+            Union& udevices = (*call->stat)["devices"];
+            Details::tupleLoop(
+              _engines,
+              [&udevices, &dcall](BaseEngine* a_engine, size_t a_index) {
+                if (!(bool)a_engine->property("enable")) {
+                  return;
+                }
+                if (a_engine->property("devices").is<UnionVector>()) {
+                  size_t size = a_engine->property("devices").size();
+                  for(size_t i = 0; i < size; ++i){
+                    if (!(bool)a_engine->property("devices")[i]["enable"]){
+                      return;
+                    }
+                    std::list<Details::Distributor::DeviceIndex>::iterator ignorIt =
+                      std::find_if(dcall.ignoreDevice.begin(),
+                                dcall.ignoreDevice.end(),
+                                [&](const Details::Distributor::DeviceIndex& a_di){
+                                  return a_di.engineIndex == a_index && a_di.deviceIndex == i;
+                                }
+                                );
+                    if (ignorIt == dcall.ignoreDevice.end()) {
+                      Union::iterator devIt = udevices.insert(Union(UT_MAP));
+                      (*devIt)["engine"] = a_engine->property("name");
+                      (*devIt)["engineIndex"] = a_index;
+                      (*devIt)["device"] = a_engine->property("devices")[i]["name"];
+                      (*devIt)["deviceIndex"] = i;
+                    }
+                  }
+                } else {
+                  std::list<Details::Distributor::DeviceIndex>::iterator ignorIt =
+                    std::find_if(dcall.ignoreDevice.begin(),
+                              dcall.ignoreDevice.end(),
+                              [&](const Details::Distributor::DeviceIndex& a_di){
+                                return a_di.engineIndex == a_index;
+                              }
+                              );
+                  if (ignorIt == dcall.ignoreDevice.end()) {
+                    Union::iterator devIt = udevices.insert(Union(UT_MAP));
+                    (*devIt)["engine"] = a_engine->property("name");
+                    (*devIt)["engineIndex"] = a_index;
+                  }
+                }
+
+              }
+            );
+
+          }
 
         }
 

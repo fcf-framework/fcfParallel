@@ -34,7 +34,7 @@ namespace fcf {
         virtual void initialize(size_t a_index, Details::Distributor* a_distributor) {
         }
 
-        virtual void prepare(const Call& a_call, BaseArg** a_args, size_t a_argsc);
+        virtual void prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc);
 
         virtual void applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc){
         }
@@ -47,7 +47,7 @@ namespace fcf {
     };
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      void BaseEngine::prepare(const Call& a_call, BaseArg** a_args, size_t a_argsc) {
+      void BaseEngine::prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc) {
         PUnit punit = Registrator().get(a_call.name);
         if (punit->args.size() != a_argsc) {
           throw std::runtime_error("The number of arguments does not match the required number");
@@ -86,7 +86,9 @@ namespace fcf {
             }
           }
           if (!found){
-            throw std::runtime_error(std::string("Type does not match for argument ") + std::to_string(i+1) + ". Expected type " + types1[0]);
+            throw std::runtime_error(std::string("Type does not match for argument ") + 
+                                     std::to_string(i+1) + 
+                                     ". Expected type " + types2[0] + ", but received " + types1[0]);
           }
         }
       }

@@ -19,15 +19,18 @@ void distributorTest();
 void charTypesTest();
 void shortTypesTest();
 void intTypesTest();
+void int64TypesTest();
 void floatTypesTest();
 
 int main(int, char*[]) {
+
   fillTest();
   functionTest();
   distributorTest();
   functionDescriptorTest();
   simpleEngineTest();
   splitPackageTest();
+  int64TypesTest();
   intTypesTest();
   shortTypesTest();
   charTypesTest();

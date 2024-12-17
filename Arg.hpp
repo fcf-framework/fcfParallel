@@ -2,6 +2,7 @@
 #define ___FCF__PARALLEL__ARG_HPP___
 
 #include "macro.hpp"
+#include "type.hpp"
 
 #include <string>
 #include <set>
@@ -366,6 +367,28 @@ namespace fcf {
           a_dstArgsCount = 2;
           args[0] = "unsigned int";
           args[1] = "int";
+        }
+    };
+
+    template <>
+    class Arg<fcf_int64> : public SimpleArg<fcf_int64> {
+      public:
+        using SimpleArg::SimpleArg;
+        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
+          a_dstArgsCount = 2;
+          args[0] = "long long";
+          args[1] = "unsigned long long";
+        }
+    };
+
+    template <>
+    class Arg<fcf_uint64> : public SimpleArg<fcf_uint64> {
+      public:
+        using SimpleArg::SimpleArg;
+        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
+          a_dstArgsCount = 2;
+          args[0] = "unsigned long long";
+          args[1] = "long long";
         }
     };
 

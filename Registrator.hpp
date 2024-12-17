@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <map>
 #include "macro.hpp"
+#include "type.hpp"
 #include "Unit.hpp"
 
 namespace fcf {

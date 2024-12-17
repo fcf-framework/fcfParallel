@@ -20,9 +20,9 @@ FCF_PARALLEL_UNIT(
 
 
 void simpleEngineTest() {
+  std::cout << "Start simpleEngineTest..." << std::endl;
   fcf::Parallel::PUnit punit = fcf::Parallel::Registrator().get("test_unit_001");
   FCF_PARALLEL_TEST(punit->args.size() == 3);
-
   {
     fcf::Parallel::Executor executor;
     FCF_PARALLEL_TEST(executor.getEngine("cpu").property("name") == "cpu");
@@ -42,7 +42,6 @@ void simpleEngineTest() {
       FCF_PARALLEL_TEST(arr2[i] == 7);
     }
   }
-
 
   {
     fcf::Parallel::Executor executor;
@@ -64,6 +63,7 @@ void simpleEngineTest() {
       FCF_PARALLEL_TEST(arr2[i] == 7);
     }
   }
+
 
   {
     fcf::Parallel::Executor executor;

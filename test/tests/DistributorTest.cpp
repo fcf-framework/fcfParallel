@@ -98,7 +98,6 @@ void distributorTest(){
 
     FCF_PARALLEL_TEST(output.equal(uexpected, false, true));
   }
-
   {
     fcf::Parallel::Details::Distributor distributor;
     distributor.addDevice(1, 0, 1, 100*1000);

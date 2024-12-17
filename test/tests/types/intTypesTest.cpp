@@ -7,7 +7,7 @@ FCF_PARALLEL_UNIT(
     const FCFParallelTask* a_task,
     int a_sourceValue,
     FCF_PARALLEL_GLOBAL const int* a_sourceArr,
-    FCF_PARALLEL_GLOBAL int* a_destArr1,
+    FCF_PARALLEL_GLOBAL fcf_int32* a_destArr1,
     FCF_PARALLEL_GLOBAL int* a_destArr2
     ){
     a_destArr1[a_task->lowIndex] = a_sourceValue;
@@ -45,9 +45,11 @@ void intTypesTest(){
       for(int i = 0; i < (int)tsize; ++i) {
         source[i] = i + 1;
       }
+      fcf::Union state;
       fcf::Parallel::Call call;
       call.name = units[i];
       call.size = tsize;
+      call.stat = &state;
       executor(call,
                7,
                fcf::Parallel::refArg(source, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),

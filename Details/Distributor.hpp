@@ -123,7 +123,7 @@ namespace fcf {
               , packageSize(0)
               , threadCount(0)
               , step(0)
-              , minDuration(minDuration)
+              , minDuration(0)
               , lresult(0)
               , div(0)
               , ignore(false)
@@ -248,6 +248,7 @@ namespace fcf {
 
           _task = task;
 
+          size_t devCount = 0;
           for(std::list<PDevice>::iterator it = _devices.begin(); it != _devices.end(); ++it){
             if ((*it)->balance.find(task->name) == (*it)->balance.end()) {
               PBalance balance(new Balance());
@@ -266,6 +267,13 @@ namespace fcf {
               balance->duration = (unsigned long long)((double)(balance->duration * a_call.packageSize) / (double)balance->packageSize);
               balance->packageSize = a_call.packageSize;
             }
+            if (!balance->ignore){
+              ++devCount;
+            }
+          }
+
+          if (!devCount){
+            throw std::runtime_error("There are no available devices");
           }
 
           _startPack = std::chrono::high_resolution_clock::now();
