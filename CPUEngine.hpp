@@ -15,15 +15,24 @@ namespace fcf {
     class CPUEngine: public BaseEngine {
       public:
         CPUEngine() {
-          _properties["name"]      = "cpu";
-          _properties["threads"]   = std::thread::hardware_concurrency();
+          _properties["name"]                  = "cpu";
+          _properties["threads"]               = std::thread::hardware_concurrency();
+          _properties["devices"]               = Union(UT_VECTOR);
+          _properties["devices"][0]            = Union(UT_MAP);
+          _properties["devices"][0]["enable"]  = true;
+          _properties["devices"][0]["type"]    = "cpu";
+          _properties["devices"][0]["threads"] = std::thread::hardware_concurrency();
+          _properties["devices"][0]["name"]    = "cpu";
         }
 
         virtual void initialize(size_t a_index, Details::Distributor* a_distributor) {
-          if (!_properties["enable"].get<bool>()) {
+          if (!(bool)_properties["enable"]) {
             return;
           }
-          int threads = _properties["threads"].get<int>();
+          if (!(bool)_properties["devices"][0]["enable"]) {
+            return;
+          }
+          int threads = std::min((unsigned int)_properties["threads"], (unsigned int)_properties["devices"][0]["threads"]);
           for(int i = 0; i < threads; ++i){
             a_distributor->addDevice(a_index, i, 1, _properties["minDuration"].get<unsigned long long>());
           }
