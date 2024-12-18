@@ -25,8 +25,10 @@
 namespace fcf {
   namespace Parallel {
 
-    std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId);
-    std::string openCLErrorToString(int a_ec);
+    namespace Details {
+      std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId);
+      std::string openCLErrorToString(int a_ec);
+    }
 
     class OpenCLEngine: public BaseEngine {
       protected:
@@ -119,7 +121,7 @@ namespace fcf {
         cl_int iresult = CL_SUCCESS;
         queue = clCreateCommandQueue(a_context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &iresult);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clCreateCommandQueue() failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clCreateCommandQueue() failed: " + Details::openCLErrorToString(iresult));
         }
       }
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
@@ -142,7 +144,7 @@ namespace fcf {
         int iresult = CL_SUCCESS;
         compileProgram = clCreateProgramWithSource(a_device->context, 1, (const char **)&a_code, 0, &iresult);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clCreateProgramWithSource failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clCreateProgramWithSource failed: " + Details::openCLErrorToString(iresult));
         }
         iresult = clCompileProgram(compileProgram,
                                    1,
@@ -156,7 +158,7 @@ namespace fcf {
                                   );
         std::string log;
         if (iresult != CL_SUCCESS || a_call.stat){
-          log = getOpenCLBuildLog(compileProgram, a_device->device);
+          log = Details::getOpenCLBuildLog(compileProgram, a_device->device);
         }
         if (a_call.stat){
           if(!(*a_call.stat)["log"].is(UT_VECTOR)){
@@ -211,7 +213,7 @@ namespace fcf {
           iresult = CL_LINK_PROGRAM_FAILURE;
         }
         if (iresult != CL_SUCCESS || a_call.stat) {
-          log = getOpenCLBuildLog(libraryProgram, a_device->device);
+          log = Details::getOpenCLBuildLog(libraryProgram, a_device->device);
         }
         if (a_call.stat) {
           fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
@@ -257,7 +259,7 @@ namespace fcf {
         }
 
         if (iresult != CL_SUCCESS || a_call.stat) {
-          log = getOpenCLBuildLog(program, a_device->device);
+          log = Details::getOpenCLBuildLog(program, a_device->device);
         }
         if (a_call.stat) {
           fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
@@ -282,7 +284,7 @@ namespace fcf {
         kernel = clCreateKernel(program, "__FCF_PARALLEL_MAIN", &iresult);
         if (iresult) {
           _release();
-          throw std::runtime_error(std::string() + "clCreateKernel failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clCreateKernel failed: " + Details::openCLErrorToString(iresult));
         }
       }
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
@@ -326,7 +328,7 @@ namespace fcf {
                                    a_arg->size,
                                    a_arg->pointer);
           if (iresult != CL_SUCCESS) {
-            throw std::runtime_error(std::string() + "clSetKernelArg(" + std::to_string(a_argIndex) + ") failed: " + openCLErrorToString(iresult));
+            throw std::runtime_error(std::string() + "clSetKernelArg(" + std::to_string(a_argIndex) + ") failed: " + Details::openCLErrorToString(iresult));
           }
         } else {
           size_t dsize = a_arg->itemSize * a_arg->length;
@@ -336,7 +338,7 @@ namespace fcf {
                                0,
                                &iresult);
           if (!mem) {
-            throw std::runtime_error(std::string() + "clCreateBuffer(" + std::to_string(a_argIndex) + ") failed (for container): " + openCLErrorToString(iresult));
+            throw std::runtime_error(std::string() + "clCreateBuffer(" + std::to_string(a_argIndex) + ") failed (for container): " + Details::openCLErrorToString(iresult));
           }
           memSize = dsize;
           iresult = clEnqueueWriteBuffer(a_device->queue,
@@ -349,14 +351,14 @@ namespace fcf {
                                          NULL,
                                          NULL);
           if (iresult != CL_SUCCESS) {
-            throw std::runtime_error(std::string() + "clEnqueueWriteBuffer (argNumber:" + std::to_string(a_argIndex) + ") failed: " + openCLErrorToString(iresult));
+            throw std::runtime_error(std::string() + "clEnqueueWriteBuffer (argNumber:" + std::to_string(a_argIndex) + ") failed: " + Details::openCLErrorToString(iresult));
           }
           iresult = clSetKernelArg(a_command->kernel,
                                    a_argIndex + FCF_PARALLEL_OPENCL_SYS_ARG_COUNT,
                                    sizeof(cl_mem),
                                    &mem);
           if (iresult != CL_SUCCESS) {
-            throw std::runtime_error(std::string() + "clSetKernelArg(" + std::to_string(a_argIndex) + ") failed: " + openCLErrorToString(iresult));
+            throw std::runtime_error(std::string() + "clSetKernelArg(" + std::to_string(a_argIndex) + ") failed: " + Details::openCLErrorToString(iresult));
           }
         }
       }
@@ -391,7 +393,7 @@ namespace fcf {
         cl_uint result = 0;
         result = clGetPlatformIDs(sizeof(platformIds) / sizeof(platformIds[0]), &platformIds[0], &platformIdResC);
         if (result != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clGetPlatformIDs failed: " + openCLErrorToString(result));
+          throw std::runtime_error(std::string() + "clGetPlatformIDs failed: " + Details::openCLErrorToString(result));
         }
         for(size_t platformIndex = 0; platformIndex < platformIdResC; ++platformIndex) {
           cl_device_id devicev[64];
@@ -413,7 +415,7 @@ namespace fcf {
                       &paramSizeRes
                     );
             if (result != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + openCLErrorToString(result));
+              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + Details::openCLErrorToString(result));
             }
 
             std::string deviceName;
@@ -426,7 +428,7 @@ namespace fcf {
                       &deviceNameSize
                     );
             if (result != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + openCLErrorToString(result));
+              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + Details::openCLErrorToString(result));
             }
             deviceName.resize(std::max(deviceNameSize, (size_t)1) - 1);
             result = clGetDeviceInfo(
@@ -437,7 +439,7 @@ namespace fcf {
                       &deviceNameSize
                     );
             if (result != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + openCLErrorToString(result));
+              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_TYPE) failed: " + Details::openCLErrorToString(result));
             }
 
             cl_uint deviceComputeUnits = 0;
@@ -449,7 +451,7 @@ namespace fcf {
                       &paramSizeRes
                     );
             if (result != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_MAX_COMPUTE_UNITS) failed: " + openCLErrorToString(result));
+              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_MAX_COMPUTE_UNITS) failed: " + Details::openCLErrorToString(result));
             }
 
 
@@ -462,7 +464,7 @@ namespace fcf {
                       &paramSizeRes
                     );
             if (result != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE) failed: " + openCLErrorToString(result));
+              throw std::runtime_error(std::string() + "clGetDeviceInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE) failed: " + Details::openCLErrorToString(result));
             }
 
            _properties["threads"].ref<unsigned int>() += deviceComputeUnits * wgSize * 0.2;
@@ -510,7 +512,7 @@ namespace fcf {
           cl_device_id deviceId = (cl_device_id)(unsigned long long)udev["id"];
           cl_context context = clCreateContext(NULL, 1, &deviceId, NULL, NULL, &iresult);
           if (iresult || !context) {
-            throw std::runtime_error(std::string() + "clCreateContext failed: " + openCLErrorToString(iresult));
+            throw std::runtime_error(std::string() + "clCreateContext failed: " + Details::openCLErrorToString(iresult));
           }
           PDevice pdevice(new Device(deviceId, _devices.size(), context, (bool)udev["enable"]));
           _devices.push_back(pdevice);
@@ -594,19 +596,19 @@ namespace fcf {
 
         iresult = clSetKernelArg(command->kernel, 0, sizeof(lowIndex), &lowIndex);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:0) failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:0) failed: " + Details::openCLErrorToString(iresult));
         }
         iresult = clSetKernelArg(command->kernel, 1, sizeof(highIndex), &highIndex);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:1) failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:1) failed: " + Details::openCLErrorToString(iresult));
         }
         iresult = clSetKernelArg(command->kernel, 2, sizeof(packageIndex), &packageIndex);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:2) failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:2) failed: " + Details::openCLErrorToString(iresult));
         }
         iresult = clSetKernelArg(command->kernel, 3, sizeof(taskSize), &taskSize);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:3) failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clSetKernelArg(SYS:3) failed: " + Details::openCLErrorToString(iresult));
         }
         size_t localSize = 0;
         size_t globalSize = 0;
@@ -617,7 +619,7 @@ namespace fcf {
                                            sizeof(localSize),
                                            &localSize, NULL);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error("clGetKernelWorkGroupInfo failed. Code " + openCLErrorToString(iresult));
+          throw std::runtime_error("clGetKernelWorkGroupInfo failed. Code " + Details::openCLErrorToString(iresult));
         }
         globalSize = std::ceil(a_subtask.size/(double)localSize) * localSize;
 
@@ -632,7 +634,7 @@ namespace fcf {
                     NULL,
                     NULL);
         if (iresult != CL_SUCCESS) {
-          throw std::runtime_error(std::string() + "clEnqueueNDRangeKernel failed: " + openCLErrorToString(iresult));
+          throw std::runtime_error(std::string() + "clEnqueueNDRangeKernel failed: " + Details::openCLErrorToString(iresult));
         }
         clFinish(device->queue);
 
@@ -653,7 +655,7 @@ namespace fcf {
                                           NULL,
                                           NULL);
             if (iresult != CL_SUCCESS) {
-              throw std::runtime_error(std::string() + "clEnqueueReadBuffer failed: " + openCLErrorToString(iresult));
+              throw std::runtime_error(std::string() + "clEnqueueReadBuffer failed: " + Details::openCLErrorToString(iresult));
             }
           }
         }
@@ -711,120 +713,124 @@ namespace fcf {
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId) {
-        size_t logSize = 0;
-        cl_int iresult = clGetProgramBuildInfo(a_program, a_deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
-        if (iresult) {
-          return std::string("[Failed to get a build log]");
-        }
-        std::string log;
-        log.resize(logSize+1);
+      namespace Details { 
+        std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId) {
+          size_t logSize = 0;
+          cl_int iresult = clGetProgramBuildInfo(a_program, a_deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
+          if (iresult) {
+            return std::string("[Failed to get a build log]");
+          }
+          std::string log;
+          log.resize(logSize+1);
 
-        iresult = clGetProgramBuildInfo(a_program, a_deviceId, CL_PROGRAM_BUILD_LOG, logSize, &log[0], NULL);
-        if (iresult) {
-          return std::string("[Failed to get a build log]");
-        }
+          iresult = clGetProgramBuildInfo(a_program, a_deviceId, CL_PROGRAM_BUILD_LOG, logSize, &log[0], NULL);
+          if (iresult) {
+            return std::string("[Failed to get a build log]");
+          }
 
-        return log;
-      }
-    #endif
+          return log;
+        }
+      } // Details namespace
+    #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      std::string openCLErrorToString(int a_ec) {
-        switch (a_ec) {
-          case 0: return "CL_SUCCESS";
-          case -1: return "CL_DEVICE_NOT_FOUND";
-          case -2: return "CL_DEVICE_NOT_AVAILABLE";
-          case -3: return "CL_COMPILER_NOT_AVAILABLE";
-          case -4: return "CL_MEM_OBJECT_ALLOCATION_FAILURE";
-          case -5: return "CL_OUT_OF_RESOURCES";
-          case -6: return "CL_OUT_OF_HOST_MEMORY";
-          case -7: return "CL_PROFILING_INFO_NOT_AVAILABLE";
-          case -8: return "CL_MEM_COPY_OVERLAP";
-          case -9: return "CL_IMAGE_FORMAT_MISMATCH";
-          case -10: return "CL_IMAGE_FORMAT_NOT_SUPPORTED";
-          case -12: return "CL_MAP_FAILURE";
-          case -13: return "CL_MISALIGNED_SUB_BUFFER_OFFSET";
-          case -14: return "CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST";
-          case -15: return "CL_COMPILE_PROGRAM_FAILURE";
-          case -16: return "CL_LINKER_NOT_AVAILABLE";
-          case -17: return "CL_LINK_PROGRAM_FAILURE";
-          case -18: return "CL_DEVICE_PARTITION_FAILED";
-          case -19: return "CL_KERNEL_ARG_INFO_NOT_AVAILABLE";
-          case -30: return "CL_INVALID_VALUE";
-          case -31: return "CL_INVALID_DEVICE_TYPE";
-          case -32: return "CL_INVALID_PLATFORM";
-          case -33: return "CL_INVALID_DEVICE";
-          case -34: return "CL_INVALID_CONTEXT";
-          case -35: return "CL_INVALID_QUEUE_PROPERTIES";
-          case -36: return "CL_INVALID_COMMAND_QUEUE";
-          case -37: return "CL_INVALID_HOST_PTR";
-          case -38: return "CL_INVALID_MEM_OBJECT";
-          case -39: return "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR";
-          case -40: return "CL_INVALID_IMAGE_SIZE";
-          case -41: return "CL_INVALID_SAMPLER";
-          case -42: return "CL_INVALID_BINARY";
-          case -43: return "CL_INVALID_BUILD_OPTIONS";
-          case -44: return "CL_INVALID_PROGRAM";
-          case -45: return "CL_INVALID_PROGRAM_EXECUTABLE";
-          case -46: return "CL_INVALID_KERNEL_NAME";
-          case -47: return "CL_INVALID_KERNEL_DEFINITION";
-          case -48: return "CL_INVALID_KERNEL";
-          case -49: return "CL_INVALID_ARG_INDEX";
-          case -50: return "CL_INVALID_ARG_VALUE";
-          case -51: return "CL_INVALID_ARG_SIZE";
-          case -52: return "CL_INVALID_KERNEL_ARGS";
-          case -53: return "CL_INVALID_WORK_DIMENSION";
-          case -54: return "CL_INVALID_WORK_GROUP_SIZE";
-          case -55: return "CL_INVALID_WORK_ITEM_SIZE";
-          case -56: return "CL_INVALID_GLOBAL_OFFSET";
-          case -57: return "CL_INVALID_EVENT_WAIT_LIST";
-          case -58: return "CL_INVALID_EVENT";
-          case -59: return "CL_INVALID_OPERATION";
-          case -60: return "CL_INVALID_GL_OBJECT";
-          case -61: return "CL_INVALID_BUFFER_SIZE";
-          case -62: return "CL_INVALID_MIP_LEVEL";
-          case -63: return "CL_INVALID_GLOBAL_WORK_SIZE";
-          case -64: return "CL_INVALID_PROPERTY";
-          case -65: return "CL_INVALID_IMAGE_DESCRIPTOR";
-          case -66: return "CL_INVALID_COMPILER_OPTIONS";
-          case -67: return "CL_INVALID_LINKER_OPTIONS";
-          case -68: return "CL_INVALID_DEVICE_PARTITION_COUNT";
-          case -69: return "CL_INVALID_PIPE_SIZE";
-          case -70: return "CL_INVALID_DEVICE_QUEUE";
-          case -71: return "CL_INVALID_SPEC_ID";
-          case -72: return "CL_MAX_SIZE_RESTRICTION_EXCEEDED";
-          case -1002: return "CL_INVALID_D3D10_DEVICE_KHR";
-          case -1003: return "CL_INVALID_D3D10_RESOURCE_KHR";
-          case -1004: return "CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR";
-          case -1005: return "CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR";
-          case -1006: return "CL_INVALID_D3D11_DEVICE_KHR";
-          case -1007: return "CL_INVALID_D3D11_RESOURCE_KHR";
-          case -1008: return "CL_D3D11_RESOURCE_ALREADY_ACQUIRED_KHR";
-          case -1009: return "CL_D3D11_RESOURCE_NOT_ACQUIRED_KHR";
-          case -1010: return "CL_INVALID_DX9_MEDIA_ADAPTER_KHR";
-          case -1011: return "CL_INVALID_DX9_MEDIA_SURFACE_KHR";
-          case -1012: return "CL_DX9_MEDIA_SURFACE_ALREADY_ACQUIRED_KHR";
-          case -1013: return "CL_DX9_MEDIA_SURFACE_NOT_ACQUIRED_KHR";
-          case -1093: return "CL_INVALID_EGL_OBJECT_KHR";
-          case -1092: return "CL_EGL_RESOURCE_NOT_ACQUIRED_KHR";
-          case -1001: return "CL_PLATFORM_NOT_FOUND_KHR";
-          case -1057: return "CL_DEVICE_PARTITION_FAILED_EXT";
-          case -1058: return "CL_INVALID_PARTITION_COUNT_EXT";
-          case -1059: return "CL_INVALID_PARTITION_NAME_EXT";
-          case -1094: return "CL_INVALID_ACCELERATOR_INTEL";
-          case -1095: return "CL_INVALID_ACCELERATOR_TYPE_INTEL";
-          case -1096: return "CL_INVALID_ACCELERATOR_DESCRIPTOR_INTEL";
-          case -1097: return "CL_ACCELERATOR_TYPE_NOT_SUPPORTED_INTEL";
-          case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
-          case -1098: return "CL_INVALID_VA_API_MEDIA_ADAPTER_INTEL";
-          case -1099: return "CL_INVALID_VA_API_MEDIA_SURFACE_INTEL";
-          case -1100: return "CL_VA_API_MEDIA_SURFACE_ALREADY_ACQUIRED_INTEL";
-          case -1101: return "CL_VA_API_MEDIA_SURFACE_NOT_ACQUIRED_INTEL";
-          default: return std::string("CL_UNKNOWN_ERROR:") + std::to_string(a_ec);
+      namespace Details { 
+        std::string openCLErrorToString(int a_ec) {
+          switch (a_ec) {
+            case 0: return "CL_SUCCESS";
+            case -1: return "CL_DEVICE_NOT_FOUND";
+            case -2: return "CL_DEVICE_NOT_AVAILABLE";
+            case -3: return "CL_COMPILER_NOT_AVAILABLE";
+            case -4: return "CL_MEM_OBJECT_ALLOCATION_FAILURE";
+            case -5: return "CL_OUT_OF_RESOURCES";
+            case -6: return "CL_OUT_OF_HOST_MEMORY";
+            case -7: return "CL_PROFILING_INFO_NOT_AVAILABLE";
+            case -8: return "CL_MEM_COPY_OVERLAP";
+            case -9: return "CL_IMAGE_FORMAT_MISMATCH";
+            case -10: return "CL_IMAGE_FORMAT_NOT_SUPPORTED";
+            case -12: return "CL_MAP_FAILURE";
+            case -13: return "CL_MISALIGNED_SUB_BUFFER_OFFSET";
+            case -14: return "CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST";
+            case -15: return "CL_COMPILE_PROGRAM_FAILURE";
+            case -16: return "CL_LINKER_NOT_AVAILABLE";
+            case -17: return "CL_LINK_PROGRAM_FAILURE";
+            case -18: return "CL_DEVICE_PARTITION_FAILED";
+            case -19: return "CL_KERNEL_ARG_INFO_NOT_AVAILABLE";
+            case -30: return "CL_INVALID_VALUE";
+            case -31: return "CL_INVALID_DEVICE_TYPE";
+            case -32: return "CL_INVALID_PLATFORM";
+            case -33: return "CL_INVALID_DEVICE";
+            case -34: return "CL_INVALID_CONTEXT";
+            case -35: return "CL_INVALID_QUEUE_PROPERTIES";
+            case -36: return "CL_INVALID_COMMAND_QUEUE";
+            case -37: return "CL_INVALID_HOST_PTR";
+            case -38: return "CL_INVALID_MEM_OBJECT";
+            case -39: return "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR";
+            case -40: return "CL_INVALID_IMAGE_SIZE";
+            case -41: return "CL_INVALID_SAMPLER";
+            case -42: return "CL_INVALID_BINARY";
+            case -43: return "CL_INVALID_BUILD_OPTIONS";
+            case -44: return "CL_INVALID_PROGRAM";
+            case -45: return "CL_INVALID_PROGRAM_EXECUTABLE";
+            case -46: return "CL_INVALID_KERNEL_NAME";
+            case -47: return "CL_INVALID_KERNEL_DEFINITION";
+            case -48: return "CL_INVALID_KERNEL";
+            case -49: return "CL_INVALID_ARG_INDEX";
+            case -50: return "CL_INVALID_ARG_VALUE";
+            case -51: return "CL_INVALID_ARG_SIZE";
+            case -52: return "CL_INVALID_KERNEL_ARGS";
+            case -53: return "CL_INVALID_WORK_DIMENSION";
+            case -54: return "CL_INVALID_WORK_GROUP_SIZE";
+            case -55: return "CL_INVALID_WORK_ITEM_SIZE";
+            case -56: return "CL_INVALID_GLOBAL_OFFSET";
+            case -57: return "CL_INVALID_EVENT_WAIT_LIST";
+            case -58: return "CL_INVALID_EVENT";
+            case -59: return "CL_INVALID_OPERATION";
+            case -60: return "CL_INVALID_GL_OBJECT";
+            case -61: return "CL_INVALID_BUFFER_SIZE";
+            case -62: return "CL_INVALID_MIP_LEVEL";
+            case -63: return "CL_INVALID_GLOBAL_WORK_SIZE";
+            case -64: return "CL_INVALID_PROPERTY";
+            case -65: return "CL_INVALID_IMAGE_DESCRIPTOR";
+            case -66: return "CL_INVALID_COMPILER_OPTIONS";
+            case -67: return "CL_INVALID_LINKER_OPTIONS";
+            case -68: return "CL_INVALID_DEVICE_PARTITION_COUNT";
+            case -69: return "CL_INVALID_PIPE_SIZE";
+            case -70: return "CL_INVALID_DEVICE_QUEUE";
+            case -71: return "CL_INVALID_SPEC_ID";
+            case -72: return "CL_MAX_SIZE_RESTRICTION_EXCEEDED";
+            case -1002: return "CL_INVALID_D3D10_DEVICE_KHR";
+            case -1003: return "CL_INVALID_D3D10_RESOURCE_KHR";
+            case -1004: return "CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR";
+            case -1005: return "CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR";
+            case -1006: return "CL_INVALID_D3D11_DEVICE_KHR";
+            case -1007: return "CL_INVALID_D3D11_RESOURCE_KHR";
+            case -1008: return "CL_D3D11_RESOURCE_ALREADY_ACQUIRED_KHR";
+            case -1009: return "CL_D3D11_RESOURCE_NOT_ACQUIRED_KHR";
+            case -1010: return "CL_INVALID_DX9_MEDIA_ADAPTER_KHR";
+            case -1011: return "CL_INVALID_DX9_MEDIA_SURFACE_KHR";
+            case -1012: return "CL_DX9_MEDIA_SURFACE_ALREADY_ACQUIRED_KHR";
+            case -1013: return "CL_DX9_MEDIA_SURFACE_NOT_ACQUIRED_KHR";
+            case -1093: return "CL_INVALID_EGL_OBJECT_KHR";
+            case -1092: return "CL_EGL_RESOURCE_NOT_ACQUIRED_KHR";
+            case -1001: return "CL_PLATFORM_NOT_FOUND_KHR";
+            case -1057: return "CL_DEVICE_PARTITION_FAILED_EXT";
+            case -1058: return "CL_INVALID_PARTITION_COUNT_EXT";
+            case -1059: return "CL_INVALID_PARTITION_NAME_EXT";
+            case -1094: return "CL_INVALID_ACCELERATOR_INTEL";
+            case -1095: return "CL_INVALID_ACCELERATOR_TYPE_INTEL";
+            case -1096: return "CL_INVALID_ACCELERATOR_DESCRIPTOR_INTEL";
+            case -1097: return "CL_ACCELERATOR_TYPE_NOT_SUPPORTED_INTEL";
+            case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
+            case -1098: return "CL_INVALID_VA_API_MEDIA_ADAPTER_INTEL";
+            case -1099: return "CL_INVALID_VA_API_MEDIA_SURFACE_INTEL";
+            case -1100: return "CL_VA_API_MEDIA_SURFACE_ALREADY_ACQUIRED_INTEL";
+            case -1101: return "CL_VA_API_MEDIA_SURFACE_NOT_ACQUIRED_INTEL";
+            default: return std::string("CL_UNKNOWN_ERROR:") + std::to_string(a_ec);
+          }
         }
       }
-    #endif
+    #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
   } // Parallel namespace
 } // fcf namespace
