@@ -65,10 +65,6 @@ void int64TypesTest(){
         FCF_PARALLEL_TEST(destination1[i] == 7);
         FCF_PARALLEL_TEST(destination2[i] == i + 1);
       }
-      fcf::UnionStringifyOptions uso;
-      uso.friendly = true;
-      state.stringify(std::cout, uso);
-      std::cout << std::endl;
     }
   }
   {
