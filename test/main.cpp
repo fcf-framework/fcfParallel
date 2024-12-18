@@ -21,6 +21,7 @@ void shortTypesTest();
 void intTypesTest();
 void int64TypesTest();
 void floatTypesTest();
+void doubleTypesTest();
 
 int main(int, char*[]) {
 
@@ -35,6 +36,7 @@ int main(int, char*[]) {
   shortTypesTest();
   charTypesTest();
   floatTypesTest();
+  doubleTypesTest();
   std::cout << "Complete!" << std::endl;
   return 0;
 }

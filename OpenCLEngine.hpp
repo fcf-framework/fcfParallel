@@ -622,6 +622,8 @@ namespace fcf {
             "typedef unsigned int fcf_uint32;\n"
             "typedef long fcf_int64;\n"
             "typedef unsigned long fcf_uint64;\n"
+            "typedef float fcf_float32;\n"
+            "typedef double fcf_float64;\n"
             "inline void FCF_PARALLEL_MAIN(" + fdf.declArgs + ");\n"
             "\n"
             "__kernel void __FCF_PARALLEL_MAIN(unsigned int a_fcf_parallel_low_offset,\n"

@@ -32,4 +32,13 @@
     #define FCF_UINT64_TYPE fcf_uint64
     typedef unsigned long long fcf_uint64;
   #endif // #ifndef FCF_UINT64_TYPE
+  #ifndef FCF_FLOAT32_TYPE
+    #define FCF_FLOAT32_TYPE fcf_float32
+    typedef float fcf_float32;
+  #endif // #ifndef FCF_FLOAT32_TYPE
+  #ifndef FCF_FLOAT64_TYPE
+    #define FCF_FLOAT64_TYPE fcf_float64
+    typedef double fcf_float64;
+  #endif // #ifndef FCF_FLOAT64_TYPE
+
 #endif // #ifndef ___FCF__PARALLEL__TYPE_HPP___

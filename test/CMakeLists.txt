@@ -8,6 +8,7 @@ add_executable("parallel-test" impl.cpp
                                tests/types/intTypesTest.cpp
                                tests/types/int64TypesTest.cpp
                                tests/types/floatTypesTest.cpp
+                               tests/types/doubleTypesTest.cpp
                               )
 target_link_libraries("parallel-test" ${OpenCL_LIBRARY})
 
