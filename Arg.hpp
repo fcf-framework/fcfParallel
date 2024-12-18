@@ -24,35 +24,35 @@ namespace fcf {
     class BaseArg;
 
     struct ArgUpload{
-      ArgUpload(bool a_value)
+      inline ArgUpload(bool a_value)
         : value(a_value){}
       inline void operator()(BaseArg* a_parg);
       bool value;
     };
 
     struct ArgSplit{
-      ArgSplit(ParallelSplit a_value)
+      inline ArgSplit(ParallelSplit a_value)
         : value(a_value){}
       inline void operator()(BaseArg* a_parg);
       ParallelSplit value;
     };
 
     struct ArgLength{
-      ArgLength(size_t a_value)
+      inline ArgLength(size_t a_value)
         : value(a_value){}
       inline void operator()(BaseArg* a_parg);
       size_t value;
     };
 
     struct ArgSplitSize{
-      ArgSplitSize(size_t a_value)
+      inline ArgSplitSize(size_t a_value)
         : value(a_value){}
       inline void operator()(BaseArg* a_parg);
       size_t value;
     };
 
     struct ArgContainer{
-      ArgContainer(size_t a_value)
+      inline ArgContainer(size_t a_value)
         : value(a_value){}
       inline void operator()(BaseArg* a_parg);
       size_t value;
@@ -71,7 +71,7 @@ namespace fcf {
             size_t index = i*2;
             size_t l = strlen(origArgs[i]);
             if (l + 1 >= FCF_PARALLLEL_MAX_TYPE_LENGTH - 1) {
-              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1)); 
+              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1));
             }
             std::strcpy(types[index], origArgs[i]);
             types[index][l] = '*';
@@ -80,7 +80,7 @@ namespace fcf {
             index += 1;
             l += 6;
             if (l + 1 >= FCF_PARALLLEL_MAX_TYPE_LENGTH - 1) {
-              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1)); 
+              throw std::runtime_error(std::string() + "The size of the type name may not exceed " + std::to_string(FCF_PARALLLEL_MAX_TYPE_LENGTH-1));
             }
             std::strcpy(types[index], "const ");
             std::strcpy(&types[index][6], origArgs[i]);
@@ -96,16 +96,7 @@ namespace fcf {
 
     class BaseArg {
       public:
-        BaseArg()
-          : pointer(0)
-          , size(0)
-          , itemSize(0)
-          , length(0)
-          , container(false)
-          , split(PS_NONE)
-          , splitSize(1)
-          , upload(false) {
-        }
+        BaseArg();
         virtual ~BaseArg();
         virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) = 0;
         void*         pointer;
@@ -458,6 +449,19 @@ namespace fcf {
     #ifdef FCF_PARALLEL_IMPLEMENTATION
       BaseArg::~BaseArg() {
       }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      BaseArg::BaseArg()
+          : pointer(0)
+          , size(0)
+          , itemSize(0)
+          , length(0)
+          , container(false)
+          , split(PS_NONE)
+          , splitSize(1)
+          , upload(false) {
+        }
     #endif
 
     void ArgUpload::operator()(BaseArg* a_parg){

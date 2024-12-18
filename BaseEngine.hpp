@@ -15,36 +15,58 @@ namespace fcf {
 
     class BaseEngine {
       public:
-        BaseEngine()
-          : _properties(fcf::UT_MAP){
-          _properties["enable"]      = true;
-          _properties["minDuration"] = 200 * 1000;
-        }
-        virtual ~BaseEngine(){
-        }
-
-        Union& property(std::string a_name) {
-          return _properties[a_name];
-        }
-
-        void property(std::string a_name, const Union& a_value) {
-          _properties[a_name] = a_value;
-        }
-
-        virtual void initialize(size_t a_index, Details::Distributor* a_distributor) {
-        }
-
-        virtual void prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc);
-
-        virtual void applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc){
-        }
-
-        virtual void execute(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, BaseArg** a_args, size_t a_argsc) {
-
-        }
+        BaseEngine();
+        virtual ~BaseEngine();
+        virtual Union&  property(std::string a_name);
+        virtual void    property(std::string a_name, const Union& a_value);
+        virtual void    initialize(size_t a_index, Details::Distributor* a_distributor);
+        virtual void    prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc);
+        virtual void    applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc);
+        virtual void    execute(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, BaseArg** a_args, size_t a_argsc);
       protected:
         Union _properties;
     };
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      BaseEngine::BaseEngine()
+        : _properties(fcf::UT_MAP)
+      {
+        _properties["enable"]      = true;
+        _properties["minDuration"] = 200 * 1000;
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      BaseEngine::~BaseEngine(){
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      Union& BaseEngine::property(std::string a_name) {
+        return _properties[a_name];
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      void BaseEngine::property(std::string a_name, const Union& a_value) {
+        _properties[a_name] = a_value;
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      void BaseEngine::initialize(size_t a_index, Details::Distributor* a_distributor) {
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      void BaseEngine::applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc){
+      }
+    #endif
+
+    #ifdef FCF_PARALLEL_IMPLEMENTATION
+      void BaseEngine::execute(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, BaseArg** a_args, size_t a_argsc) {
+      }
+    #endif
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
       void BaseEngine::prepare(const Call& a_call, Details::Distributor::Call& a_distributorCall, BaseArg** a_args, size_t a_argsc) {
@@ -86,8 +108,8 @@ namespace fcf {
             }
           }
           if (!found){
-            throw std::runtime_error(std::string("Type does not match for argument ") + 
-                                     std::to_string(i+1) + 
+            throw std::runtime_error(std::string("Type does not match for argument ") +
+                                     std::to_string(i+1) +
                                      ". Expected type " + types2[0] + ", but received " + types1[0]);
           }
         }

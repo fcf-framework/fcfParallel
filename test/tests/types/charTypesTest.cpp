@@ -29,8 +29,6 @@ FCF_PARALLEL_UNIT(
   }
 )
 
-
-
 void charTypesTest(){
   std::cout << "Start charTypesTest..." << std::endl;
   {

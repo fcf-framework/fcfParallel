@@ -19,7 +19,7 @@ namespace fcf {
       } // Details namespace
 
       struct Registrator {
-        Registrator(){}
+        inline Registrator(){}
 
         template<typename TFunction>
         Registrator(const char* a_name, const char* a_code, TFunction a_func) {

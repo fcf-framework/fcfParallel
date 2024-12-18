@@ -12,7 +12,7 @@ namespace fcf {
       unsigned long long  packageSize;
       bool                split;
       Union*              stat;
-      Call()
+      inline Call()
         : name(0) 
         , size(0)
         , packageSize(0) 

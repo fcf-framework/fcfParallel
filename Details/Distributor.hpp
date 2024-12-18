@@ -55,7 +55,7 @@ namespace fcf {
             std::string             lastError;
             std::list<DeviceIndex>  ignoreDevice; // Used for the first time at the first call
                                                   // for a given name and used for the rest of the time¤
-            Call()
+            inline Call()
               : name(0)
               , count(0)
               , split(false)
@@ -89,7 +89,7 @@ namespace fcf {
             std::string                     error;
             bool                            errorFlag;
 
-            Task()
+            inline Task()
               : action(0)
               , offset(0)
               , completeOffset(0)
@@ -115,7 +115,7 @@ namespace fcf {
             unsigned long long lresult;
             unsigned long long div;
             bool               ignore;
-            Balance()
+            inline Balance()
               : attitude(0)
               , lattitude(0)
               , deviation(0)
@@ -144,11 +144,11 @@ namespace fcf {
 
           class Unlock {
             public:
-              Unlock(std::unique_lock<std::mutex>& a_lock)
+              inline Unlock(std::unique_lock<std::mutex>& a_lock)
                 : _lock(a_lock) {
                 a_lock.unlock();
               }
-              ~Unlock(){
+              inline ~Unlock(){
                 _lock.lock();
               }
             private:
@@ -157,11 +157,11 @@ namespace fcf {
 
           class Lock {
             public:
-              Lock(std::unique_lock<std::mutex>& a_lock)
+              inline Lock(std::unique_lock<std::mutex>& a_lock)
                 : _lock(a_lock) {
                 a_lock.lock();
               }
-              ~Lock(){
+              inline ~Lock(){
                 _lock.unlock();
               }
             private:

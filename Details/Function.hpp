@@ -34,7 +34,7 @@ namespace fcf {
       struct FunctionCaller;
 
       struct Function {
-          Function()
+          inline Function()
             : w(0)
             , cb(0)
           {}
