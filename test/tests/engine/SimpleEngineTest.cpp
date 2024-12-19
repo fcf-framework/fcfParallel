@@ -13,7 +13,7 @@ FCF_PARALLEL_UNIT(
 
 FCF_PARALLEL_UNIT(
     test_unit_002,
-    void FCF_PARALLEL_MAIN(const FCFParallelTask* a_task, int a_index, FCF_PARALLEL_GLOBAL int* a_array1,  size_t a_arrayc1){
+    void FCF_PARALLEL_MAIN(const FCFParallelTask* a_task, int a_index, FCF_PARALLEL_GLOBAL int* a_array1,  unsigned int a_arrayc1){
       a_array1[a_task->lowIndex%a_arrayc1] = a_index;
     }
 );
@@ -36,7 +36,7 @@ void simpleEngineTest() {
     call.packageSize = 1000;
     std::vector<int> arr1(call.size, 999999999);
     std::vector<int> arr2(call.size, 999999999);
-    executor(call, 7, fcf::Parallel::refArg(arr1), fcf::Parallel::refArg(arr2));
+    executor(call, (int)7, fcf::Parallel::refArg(arr1), fcf::Parallel::refArg(arr2));
     for(int i = 0; i < (int)call.size; ++i){
       FCF_PARALLEL_TEST(arr1[i] == i);
       FCF_PARALLEL_TEST(arr2[i] == 7);
@@ -79,7 +79,7 @@ void simpleEngineTest() {
     arg2.upload = true;
     fcf::Parallel::Arg< std::vector<int> > arg3 = fcf::Parallel::refArg(arr2);
     arg3.upload = true;
-    executor(call, 7,
+    executor(call, (int)7,
         fcf::Parallel::refArg(arr1, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),
         fcf::Parallel::refArg(arr2, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL))
         );
@@ -89,7 +89,6 @@ void simpleEngineTest() {
     }
   }
 
-  /*
   {
     fcf::Parallel::Executor executor;
     executor.getEngine("opencl").property("enable", false);
@@ -102,8 +101,8 @@ void simpleEngineTest() {
     std::vector<int> arr1(call.packageSize, 999999999);
     executor(call, 7,
         fcf::Parallel::refArg(arr1),
-        arr1.size()
+        (unsigned int)arr1.size()
         );
   }
-  */
+
 }
