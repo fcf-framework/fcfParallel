@@ -1,4 +1,4 @@
-#include "../../macro.hpp"
+#include "../macro.hpp"
 #include <fcfParallel/parallel.hpp>
 
 FCF_PARALLEL_UNIT(

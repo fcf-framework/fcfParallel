@@ -17,6 +17,6 @@ endif()
 
 include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/../)
 
-add_subdirectory(test)
+add_subdirectory(./test/tests)
 
 

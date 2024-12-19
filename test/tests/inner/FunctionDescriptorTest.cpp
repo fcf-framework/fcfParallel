@@ -1,6 +1,8 @@
+#include <iostream>
 #include "../macro.hpp"
-#include "../../Details/FunctionDescriptor.hpp"
+#include "../../../Details/FunctionDescriptor.hpp"
 void functionDescriptorTest() {
+  std::cout << "Start functionDescriptorTest..." << std::endl;
   {
     std::string source = 
       "void function_test(Task info, int a_index){\n"

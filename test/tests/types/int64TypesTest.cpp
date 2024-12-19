@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../macro.hpp"
+#include "../macro.hpp"
 #include <fcfParallel/parallel.hpp>
 
 

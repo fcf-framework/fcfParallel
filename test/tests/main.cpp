@@ -1,5 +1,3 @@
-#define FCF_PARALLEL_IMPLEMENTATION
-#include <fcfParallel/Details/Function.hpp>
 #include <iostream>
 
 #include <mutex>
@@ -8,23 +6,20 @@
 #include <chrono>
 #include <random>
 
-
-#include "./tests/fillTest.ipp"
-#include "./tests/FunctionTest.ipp"
-#include "./tests/FunctionDescriptorTest.ipp"
-#include "./tests/SimpleEngineTest.ipp"
-#include "./tests/splitPackageTest.ipp"
-
+void fillTest();
 void distributorTest();
+void functionDescriptorTest();
+void functionTest();
 void charTypesTest();
 void shortTypesTest();
 void intTypesTest();
 void int64TypesTest();
 void floatTypesTest();
 void doubleTypesTest();
+void simpleEngineTest();
+void splitPackageTest();
 
 int main(int, char*[]) {
-
   fillTest();
   functionTest();
   distributorTest();
