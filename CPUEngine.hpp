@@ -12,7 +12,7 @@
 namespace fcf {
   namespace Parallel {
 
-    class CPUEngine: public BaseEngine {
+    class FCF_PARALLEL_DECL_EXPORT CPUEngine: public BaseEngine {
       public:
         CPUEngine();
         ~CPUEngine();

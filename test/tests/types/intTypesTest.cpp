@@ -125,7 +125,7 @@ void intTypesTest(){
                                      fcf::Parallel::ArgUpload(true)
                                     )
               );
-      for(int i = 0; i < (unsigned int)tsize; ++i) {
+      for(int i = 0; i < (int)tsize; ++i) {
         FCF_PARALLEL_TEST(destination1[i] == 7);
         FCF_PARALLEL_TEST(destination2[i] == i + 1);
       }

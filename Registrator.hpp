@@ -15,10 +15,10 @@ namespace fcf {
       };
 
       namespace Details {
-        extern Units __fcf_parallel_units;
+        FCF_PARALLEL_DELC_EXTERN FCF_PARALLEL_DECL_EXPORT Units __fcf_parallel_units;
       } // Details namespace
 
-      struct Registrator {
+      struct FCF_PARALLEL_DECL_EXPORT Registrator {
         inline Registrator(){}
 
         template<typename TFunction>
@@ -44,11 +44,7 @@ namespace fcf {
         }
       #endif
 
-      #ifdef FCF_PARALLEL_IMPLEMENTATION
-        namespace Details {
-          Units __fcf_parallel_units;
-        } // Details namespace
-      #endif
+
 
   } // Parallel namespace
 } // fcf namespace

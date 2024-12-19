@@ -13,7 +13,7 @@
 namespace fcf {
   namespace Parallel {
 
-    class BaseEngine {
+    class FCF_PARALLEL_DECL_EXPORT BaseEngine {
       public:
         BaseEngine();
         virtual ~BaseEngine();

@@ -94,7 +94,7 @@ namespace fcf {
       };
     }
 
-    class BaseArg {
+    class FCF_PARALLEL_DECL_EXPORT BaseArg {
       public:
         BaseArg();
         virtual ~BaseArg();
@@ -380,16 +380,6 @@ namespace fcf {
           a_dstArgsCount = 2;
           args[0] = "unsigned long long";
           args[1] = "long long";
-        }
-    };
-
-    template <>
-    class Arg<size_t> : public SimpleArg<size_t> {
-      public:
-        using SimpleArg::SimpleArg;
-        virtual void types(const char* args[FCF_PARALLEL_MAX_TYPE_COMPATIBLE], size_t& a_dstArgsCount) {
-          a_dstArgsCount = 1;
-          args[0] = "size_t";
         }
     };
 

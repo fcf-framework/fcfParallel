@@ -23,7 +23,7 @@
 namespace fcf {
   namespace Parallel {
     namespace Details {
-      class Distributor {
+      class FCF_PARALLEL_DECL_EXPORT Distributor {
           struct Device;
           typedef std::shared_ptr<Device> PDevice;
           struct Balance;

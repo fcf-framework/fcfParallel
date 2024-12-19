@@ -26,11 +26,11 @@ namespace fcf {
   namespace Parallel {
 
     namespace Details {
-      std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId);
-      std::string openCLErrorToString(int a_ec);
+      FCF_PARALLEL_DECL_EXPORT std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId);
+      FCF_PARALLEL_DECL_EXPORT std::string openCLErrorToString(int a_ec);
     }
 
-    class OpenCLEngine: public BaseEngine {
+    class FCF_PARALLEL_DECL_EXPORT OpenCLEngine: public BaseEngine {
       protected:
 
         struct DevArg;

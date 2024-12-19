@@ -29,7 +29,7 @@ void splitPackageTest() {
               fcf::Parallel::refArg(arr1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true)),
               fcf::Parallel::refArg(arr2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true) )
               );
-    int loffset = call.size - call.packageSize;
+    int loffset = (int)(call.size - call.packageSize);
 
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
@@ -67,7 +67,7 @@ void splitPackageTest() {
     //                         "; packageDuration: "    << stat.packageDuration <<
     //                         " ]" << std::endl;
 
-    int loffset = call.size - call.packageSize;
+    int loffset = (int)(call.size - call.packageSize);
 
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
@@ -103,7 +103,7 @@ void splitPackageTest() {
     //                         "; maxPackageDuration: " << stat.maxPackageDuration <<
     //                         "; packageDuration: "    << stat.packageDuration <<
     //                         " ]" << std::endl;
-    int loffset = call.size - call.packageSize;
+    int loffset = (int)(call.size - call.packageSize);
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
       FCF_PARALLEL_TEST(arr2[i] == 7);
@@ -138,7 +138,7 @@ void splitPackageTest() {
     //                         "; maxPackageDuration: " << stat.maxPackageDuration <<
     //                         "; packageDuration: "    << stat.packageDuration <<
     //                         " ]" << std::endl;
-    int loffset = call.size - call.packageSize;
+    int loffset = (int)(call.size - call.packageSize);
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
       FCF_PARALLEL_TEST(arr2[i] == 7);

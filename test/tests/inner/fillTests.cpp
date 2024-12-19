@@ -54,7 +54,7 @@ void fillTest(){
         balances[i]->threadCount = i ? 10 : 1000;
         double mpower = i ? 100 : 1000;
         double cpower = mpower;
-        unsigned long long duration = step ? ((double)balances[i]->lastTasks / mpower + 1.0/cpower) * 1000 : 0;
+        unsigned long long duration = (unsigned long long)(step ? ((double)balances[i]->lastTasks / mpower + 1.0/cpower) * 1000 : 0);
         fcf::Parallel::Details::setDuration(
                                     balances[i], 
                                     duration
