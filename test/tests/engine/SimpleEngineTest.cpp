@@ -63,7 +63,6 @@ void simpleEngineTest() {
       FCF_PARALLEL_TEST(arr2[i] == 7);
     }
   }
-
   {
     fcf::Parallel::Executor executor;
     executor.initialize();

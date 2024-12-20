@@ -3,13 +3,19 @@
 
 #include "macro.hpp"
 #include "CPUEngine.hpp"
-#include "OpenCLEngine.hpp"
+#ifndef FCF_PARALLEL_OPENCL_DISABLE
+  #include "OpenCLEngine.hpp"
+#endif
 #include "BasicExecutor.hpp"
 
 namespace fcf {
   namespace Parallel {
 
-    typedef BasicExecutor<CPUEngine, OpenCLEngine> Executor;
+    #ifndef FCF_PARALLEL_OPENCL_DISABLE
+      typedef BasicExecutor<CPUEngine, OpenCLEngine> Executor;
+    #else
+      typedef BasicExecutor<CPUEngine> Executor;
+    #endif
 
   } // Parallel namespace
 } // fcf namespace
