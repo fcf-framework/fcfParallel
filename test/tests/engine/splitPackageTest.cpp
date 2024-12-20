@@ -20,7 +20,6 @@ void splitPackageTest() {
     fcf::Parallel::Call call;
     call.name = "test_unit_split_pack_001";
     call.size = 100000;
-    call.split = true;
     call.packageSize = 1000;
     std::vector<int> arr1(call.packageSize, 999999999);
     std::vector<int> arr2(call.packageSize, 999999999);
@@ -48,7 +47,6 @@ void splitPackageTest() {
     fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
-    call.split = true;
     call.state = &state;
     call.packageSize = 1000*1000;
     std::vector<int> arr1(call.packageSize, 999999999);
@@ -78,7 +76,6 @@ void splitPackageTest() {
     fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
-    call.split = true;
     call.state = &state;
     call.packageSize = 100*1000;
     std::vector<int> arr1(call.packageSize, 999999999);
@@ -106,7 +103,6 @@ void splitPackageTest() {
     fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
-    call.split = true;
     call.state = &state;
     call.packageSize = 1000*1000;
     std::vector<int> arr1(call.packageSize, 999999999);

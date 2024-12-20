@@ -394,9 +394,9 @@ namespace fcf {
               Unlock unlock(a_lock);
               if (!task->split) {
                 while(!task->errorFlag && (task->offset < task->size)) {
-                  unsigned long long tsize = fill(*curBalances, balance, task->packageSize);
+                  unsigned long long tsize   = fill(*curBalances, balance, task->packageSize);
                   unsigned long long loffset = task->offset.fetch_add(tsize);
-                  if (loffset >= task->size){
+                  if (loffset >= task->size) {
                     break;
                   }
                   tsize = std::min(tsize, task->size - loffset);

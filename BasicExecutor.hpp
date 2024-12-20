@@ -86,11 +86,12 @@ namespace fcf {
             call = &reserveCall;
           }
 
+          bool autoSplit = false;
           tuple_args_type args{ArgResolver<TArgPack>::resolve(a_argPack)...};
           BaseArg* pargs[sizeof...(TArgPack)];
           Details::tupleLoop(
             (tuple_args_type&)args,
-            [&pargs, &call](BaseArg* a_item, size_t a_index) {
+            [&pargs, &call, &autoSplit](BaseArg* a_item, size_t a_index) {
               pargs[a_index] = a_item;
               if (a_item->upload && a_item->split == PS_NONE){
                 throw std::runtime_error("No data split mode set for parameter with upload mode enabled");
@@ -100,6 +101,7 @@ namespace fcf {
                   throw std::runtime_error("The amount of data does not correspond to the distribution by the task");
                 }
               } else if (a_item->split == PS_PACKAGE) {
+                autoSplit = true;
                 if (a_item->length !=  a_item->splitSize * call->packageSize) {
                   throw std::runtime_error("The amount of data does not correspond to the distribution by the task");
                 }
@@ -113,7 +115,8 @@ namespace fcf {
           fcf::Parallel::Details::Distributor::Call dcall;
           dcall.name        = call->name;
           dcall.count       = call->size;
-          dcall.split       = call->split;
+          dcall.split       = call->split == ES_AUTO ? autoSplit 
+                                                     : call->split == ES_ENABLE;
           dcall.packageSize = call->packageSize;
           dcall.packageTime = 0;
           dcall.function    = _handler;

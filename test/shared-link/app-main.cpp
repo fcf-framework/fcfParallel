@@ -21,7 +21,6 @@ int main(int a_argc, char* a_argv[]){
     fcf::Parallel::Call call;
     call.name = "test_unit_001";
     call.size = 100000;
-    call.split = false;
     call.packageSize = 1000;
     std::vector<int> arr1(call.size, 999999999);
     std::vector<int> arr2(call.size, 999999999);

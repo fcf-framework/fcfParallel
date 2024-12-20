@@ -32,7 +32,6 @@ void simpleEngineTest() {
     fcf::Parallel::Call call;
     call.name = "test_unit_001";
     call.size = 100000;
-    call.split = false;
     call.packageSize = 1000;
     std::vector<int> arr1(call.size, 999999999);
     std::vector<int> arr2(call.size, 999999999);
@@ -50,7 +49,6 @@ void simpleEngineTest() {
     fcf::Parallel::Call call;
     call.name = "test_unit_001";
     call.size = 100000;
-    call.split = false;
     call.packageSize = 1000;
     std::vector<int> arr1(call.size, 999999999);
     std::vector<int> arr2(call.size, 999999999);
@@ -70,7 +68,6 @@ void simpleEngineTest() {
       fcf::Parallel::Call call;
       call.name = "test_unit_001";
       call.size = 100000;
-      call.split = false;
       call.packageSize = 10;
       std::vector<int> arr1(call.size, 999999999);
       std::vector<int> arr2(call.size, 999999999);
@@ -93,7 +90,6 @@ void simpleEngineTest() {
         fcf::Parallel::Call call;
         call.name = "test_unit_002";
         call.size = 100*1000*1000;
-        call.split = false;
         call.packageSize = 10000;
         std::vector<int> arr1(call.packageSize, 999999999);
         executor(call, 7,
@@ -110,7 +106,6 @@ void simpleEngineTest() {
     fcf::Parallel::Call call;
     call.name = "test_unit_002";
     call.size = 100*1000*1000;
-    call.split = false;
     call.packageSize = 10000;
     std::vector<int> arr1(call.packageSize, 999999999);
     executor(call, 7,

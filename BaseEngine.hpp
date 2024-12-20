@@ -79,7 +79,7 @@ namespace fcf {
         }
 
         for(size_t i = 0; i < a_argsc; ++i) {
-          if (!a_call.split) {
+          if (!a_distributorCall.split) {
             if (a_args[i]->split == PS_PACKAGE) {
               throw std::runtime_error(std::string() +
                                        "Argument " +

@@ -6,17 +6,23 @@
 namespace fcf {
   namespace Parallel {
 
+    enum EExecutionSplit {
+      ES_DISABLE,
+      ES_ENABLE,
+      ES_AUTO
+    };
+
     struct Call {
       const char*         name;
       unsigned long long  size;
       unsigned long long  packageSize;
-      bool                split;
+      EExecutionSplit     split;
       Union*              state;
       inline Call()
         : name(0) 
         , size(0)
         , packageSize(0) 
-        , split(false)
+        , split(ES_AUTO)
         , state(0){
         }
     };
