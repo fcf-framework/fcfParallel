@@ -1,5 +1,5 @@
 find_package(OpenCL REQUIRED)
-include_directories(${OpenCL_INCLUDE_DIR})
+include_directories(OpenCL::OpenCL)
 add_executable("parallel-test" impl.cpp
                                main.cpp
                                inner/fillTests.cpp
@@ -15,5 +15,5 @@ add_executable("parallel-test" impl.cpp
                                types/floatTypesTest.cpp
                                types/doubleTypesTest.cpp
                               )
-target_link_libraries("parallel-test" ${OpenCL_LIBRARY})
+target_link_libraries("parallel-test" PRIVATE OpenCL::OpenCL)
 

@@ -64,31 +64,46 @@ void simpleEngineTest() {
     }
   }
 
-
   {
     fcf::Parallel::Executor executor;
     executor.initialize();
-    fcf::Parallel::Call call;
-    call.name = "test_unit_001";
-    call.size = 100000;
-    call.split = false;
-    call.packageSize = 10;
-    std::vector<int> arr1(call.size, 999999999);
-    std::vector<int> arr2(call.size, 999999999);
-    fcf::Parallel::Arg< std::vector<int> > arg2 = fcf::Parallel::refArg(arr1);
-    arg2.upload = true;
-    fcf::Parallel::Arg< std::vector<int> > arg3 = fcf::Parallel::refArg(arr2);
-    arg3.upload = true;
-    executor(call, (int)7,
-        fcf::Parallel::refArg(arr1, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),
-        fcf::Parallel::refArg(arr2, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL))
-        );
-    for(int i = 0; i < (int)call.size; ++i){
-      FCF_PARALLEL_TEST(arr1[i] == i);
-      FCF_PARALLEL_TEST(arr2[i] == 7);
+    for (size_t k = 0; k < 2; ++k) {
+      fcf::Parallel::Call call;
+      call.name = "test_unit_001";
+      call.size = 100000;
+      call.split = false;
+      call.packageSize = 10;
+      std::vector<int> arr1(call.size, 999999999);
+      std::vector<int> arr2(call.size, 999999999);
+      fcf::Parallel::Arg< std::vector<int> > arg2 = fcf::Parallel::refArg(arr1);
+      arg2.upload = true;
+      fcf::Parallel::Arg< std::vector<int> > arg3 = fcf::Parallel::refArg(arr2);
+      arg3.upload = true;
+      executor(call, (int)7,
+          fcf::Parallel::refArg(arr1, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),
+          fcf::Parallel::refArg(arr2, fcf::Parallel::ArgUpload(true), fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL))
+          );
+      for(int i = 0; i < (int)call.size; ++i){
+        FCF_PARALLEL_TEST(arr1[i] == i);
+        FCF_PARALLEL_TEST(arr2[i] == 7);
+      }
+      {
+        fcf::Parallel::Executor executor;
+        executor.getEngine("opencl").property("enable", false);
+        executor.initialize();
+        fcf::Parallel::Call call;
+        call.name = "test_unit_002";
+        call.size = 100*1000*1000;
+        call.split = false;
+        call.packageSize = 10000;
+        std::vector<int> arr1(call.packageSize, 999999999);
+        executor(call, 7,
+            fcf::Parallel::refArg(arr1),
+            (unsigned int)arr1.size()
+            );
+      }
     }
   }
-
   {
     fcf::Parallel::Executor executor;
     executor.getEngine("opencl").property("enable", false);
