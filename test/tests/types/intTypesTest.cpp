@@ -49,7 +49,7 @@ void intTypesTest(){
       fcf::Parallel::Call call;
       call.name = units[i];
       call.size = tsize;
-      call.stat = &state;
+      call.state = &state;
       executor(call,
                7,
                fcf::Parallel::refArg(source, fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL)),

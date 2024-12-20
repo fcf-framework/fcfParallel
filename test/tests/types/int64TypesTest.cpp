@@ -53,7 +53,7 @@ void int64TypesTest(){
       fcf::Parallel::Call call;
       call.name = units[i];
       call.size = tsize;
-      call.stat = &state;
+      call.state = &state;
       fcf_int64 value = 7;
       executor(call,
                value,
@@ -86,7 +86,7 @@ void int64TypesTest(){
       fcf::Parallel::Call call;
       call.name = units[i];
       call.size = tsize;
-      call.stat = &state;
+      call.state = &state;
       fcf_int64 value = 7;
       executor(call,
                value,

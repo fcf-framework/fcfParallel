@@ -157,14 +157,14 @@ namespace fcf {
                                    0
                                   );
         std::string log;
-        if (iresult != CL_SUCCESS || a_call.stat){
+        if (iresult != CL_SUCCESS || a_call.state){
           log = Details::getOpenCLBuildLog(compileProgram, a_device->device);
         }
-        if (a_call.stat){
-          if(!(*a_call.stat)["log"].is(UT_VECTOR)){
-            (*a_call.stat)["log"] = Union(UT_VECTOR);
+        if (a_call.state){
+          if(!(*a_call.state)["log"].is(UT_VECTOR)){
+            (*a_call.state)["log"] = Union(UT_VECTOR);
           }
-          fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+          fcf::Union::iterator newItemIt = (*a_call.state)["log"].insert(Union(UT_MAP));
           (*newItemIt)["engineIndex"] = a_engineIndex;
           (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
           (*newItemIt)["action"]      = "opencl_compile";
@@ -212,11 +212,11 @@ namespace fcf {
         if (status != CL_BUILD_SUCCESS && iresult == CL_SUCCESS) {
           iresult = CL_LINK_PROGRAM_FAILURE;
         }
-        if (iresult != CL_SUCCESS || a_call.stat) {
+        if (iresult != CL_SUCCESS || a_call.state) {
           log = Details::getOpenCLBuildLog(libraryProgram, a_device->device);
         }
-        if (a_call.stat) {
-          fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+        if (a_call.state) {
+          fcf::Union::iterator newItemIt = (*a_call.state)["log"].insert(Union(UT_MAP));
           (*newItemIt)["engineIndex"] = a_engineIndex;
           (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
           (*newItemIt)["action"]      = "opencl_link_modules";
@@ -258,11 +258,11 @@ namespace fcf {
           iresult = CL_LINK_PROGRAM_FAILURE;
         }
 
-        if (iresult != CL_SUCCESS || a_call.stat) {
+        if (iresult != CL_SUCCESS || a_call.state) {
           log = Details::getOpenCLBuildLog(program, a_device->device);
         }
-        if (a_call.stat) {
-          fcf::Union::iterator newItemIt = (*a_call.stat)["log"].insert(Union(UT_MAP));
+        if (a_call.state) {
+          fcf::Union::iterator newItemIt = (*a_call.state)["log"].insert(Union(UT_MAP));
           (*newItemIt)["engineIndex"] = a_engineIndex;
           (*newItemIt)["deviceIndex"] = a_device->deviceIndex;
           (*newItemIt)["action"]      = "opencl_link_program";

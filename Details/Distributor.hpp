@@ -47,7 +47,7 @@ namespace fcf {
             const char*             name;
             unsigned long long      count;
             bool                    split;
-            Union*                  stat;
+            Union*                  state;
             unsigned long long      packageSize;
             unsigned long long      packageTime;
             void                    (*function)(const SubTask&, void*);
@@ -59,7 +59,7 @@ namespace fcf {
               : name(0)
               , count(0)
               , split(false)
-              , stat(0)
+              , state(0)
               , packageSize(0)
               , packageTime(0)
               , function(0)
@@ -85,7 +85,7 @@ namespace fcf {
             unsigned long long              size;
             unsigned long long              packageSize;
             bool                            split;
-            Union*                          stat;
+            Union*                          state;
             std::string                     error;
             bool                            errorFlag;
 
@@ -97,6 +97,7 @@ namespace fcf {
               , size(0)
               , packageSize(0)
               , split(false)
+              , state(0)
               , errorFlag(false)  {
             }
           };
@@ -238,13 +239,13 @@ namespace fcf {
           task->userData    = a_call.userData;
           task->size        = a_call.count;
           task->split       = a_call.split;
-          task->stat        = a_call.stat;
+          task->state       = a_call.state;
           task->packageSize = a_call.packageSize;
           task->readyOffsetEnd = task->packageSize;
           task->name = a_call.name ? a_call.name : "";
 
-          if (task->stat && !task->stat->is(UT_MAP)){
-            task->stat->ref<fcf::UnionMap>();
+          if (task->state && !task->state->is(UT_MAP)){
+            task->state->ref<fcf::UnionMap>();
           }
 
           _task = task;
@@ -284,10 +285,10 @@ namespace fcf {
           }
 
           _startPack = std::chrono::high_resolution_clock::now();
-          if (task->stat) {
-            (*task->stat)["maxPackageDuration"] = 0;
-            (*task->stat)["minPackageDuration"] = 0;
-            (*task->stat)["packageDuration"] = 0;
+          if (task->state) {
+            (*task->state)["maxPackageDuration"] = 0;
+            (*task->state)["minPackageDuration"] = 0;
+            (*task->state)["packageDuration"] = 0;
           }
 
           _condition.notify_all();
@@ -322,27 +323,27 @@ namespace fcf {
       #endif
 
       void Distributor::_setStat(PTask& a_task){
-        if (a_task->stat) {
+        if (a_task->state) {
           unsigned long long packagec = std::max(a_task->size / a_task->packageSize, (unsigned long long)1);
           std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
           unsigned long long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - _startPack).count();
-          unsigned long long minPackageDuration = (*a_task->stat)["minPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
-                                                    ? (unsigned long long)(*a_task->stat)["minPackageDuration"]
+          unsigned long long minPackageDuration = (*a_task->state)["minPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->state)["minPackageDuration"]
                                                     : 0;
-          unsigned long long maxPackageDuration = (*a_task->stat)["maxPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
-                                                    ? (unsigned long long)(*a_task->stat)["maxPackageDuration"]
+          unsigned long long maxPackageDuration = (*a_task->state)["maxPackageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->state)["maxPackageDuration"]
                                                     : 0;
-          unsigned long long packageDuration = (*a_task->stat)["packageDuration"].isCompatible(fcf::UT_ULONGLONG)
-                                                    ? (unsigned long long)(*a_task->stat)["packageDuration"]
+          unsigned long long packageDuration = (*a_task->state)["packageDuration"].isCompatible(fcf::UT_ULONGLONG)
+                                                    ? (unsigned long long)(*a_task->state)["packageDuration"]
                                                     : 0;
-          (*a_task->stat)["minPackageDuration"] = minPackageDuration 
+          (*a_task->state)["minPackageDuration"] = minPackageDuration 
                                                               ? std::min(duration, minPackageDuration)
                                                               : duration;
-          (*a_task->stat)["maxPackageDuration"] = std::max(duration, maxPackageDuration);
+          (*a_task->state)["maxPackageDuration"] = std::max(duration, maxPackageDuration);
           if (!packageDuration){
-            (*a_task->stat)["packageDuration"] = duration;
+            (*a_task->state)["packageDuration"] = duration;
           } else {
-            (*a_task->stat)["packageDuration"] = packageDuration - (packageDuration/ packagec) + (duration / packagec);
+            (*a_task->state)["packageDuration"] = packageDuration - (packageDuration/ packagec) + (duration / packagec);
           }
           _startPack = end;
         }

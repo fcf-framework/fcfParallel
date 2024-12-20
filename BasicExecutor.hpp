@@ -61,8 +61,8 @@ namespace fcf {
         void operator()(const Call& a_call, TArgPack... a_argPack) {
           typedef std::tuple<typename ArgResolver<TArgPack>::arg_type ...> tuple_args_type;
 
-          if (a_call.stat){
-            *a_call.stat = Union(UT_MAP);
+          if (a_call.state){
+            *a_call.state = Union(UT_MAP);
           }
 
           if (!a_call.name || !a_call.name[0]){
@@ -118,7 +118,7 @@ namespace fcf {
           dcall.packageTime = 0;
           dcall.function    = _handler;
           dcall.userData    = (void*)this;
-          dcall.stat        = call->stat;
+          dcall.state       = call->state;
 
           Details::tupleLoop(
             _engines,
@@ -140,9 +140,9 @@ namespace fcf {
 
           _distributor.call(dcall);
 
-          if (call->stat) {
-            (*call->stat)["devices"] = Union(UT_VECTOR);
-            Union& udevices = (*call->stat)["devices"];
+          if (call->state) {
+            (*call->state)["devices"] = Union(UT_VECTOR);
+            Union& udevices = (*call->state)["devices"];
             Details::tupleLoop(
               _engines,
               [&udevices, &dcall](BaseEngine* a_engine, size_t a_index) {

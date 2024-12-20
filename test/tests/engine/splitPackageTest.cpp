@@ -45,27 +45,20 @@ void splitPackageTest() {
     executor.getEngine("cpu").property("threads", 4);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Union stat;
+    fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;
-    call.stat = &stat;
+    call.state = &state;
     call.packageSize = 1000*1000;
     std::vector<int> arr1(call.packageSize, 999999999);
     std::vector<int> arr2(call.packageSize, 999999999);
 
-    //std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
     executor(call,
               7,
               fcf::Parallel::refArg(arr1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true)),
               fcf::Parallel::refArg(arr2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true) )
               );
-    //std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    //std::cout << "Total duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms"<< std::endl;
-    //std::cout << "Result stat [ minPackageDuration: " << stat.minPackageDuration <<
-    //                         "; maxPackageDuration: " << stat.maxPackageDuration <<
-    //                         "; packageDuration: "    << stat.packageDuration <<
-    //                         " ]" << std::endl;
 
     int loffset = (int)(call.size - call.packageSize);
 
@@ -82,27 +75,20 @@ void splitPackageTest() {
     executor.getEngine("cpu").property("threads", 4);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Union stat;
+    fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;
-    call.stat = &stat;
+    call.state = &state;
     call.packageSize = 100*1000;
     std::vector<int> arr1(call.packageSize, 999999999);
     std::vector<int> arr2(call.packageSize, 999999999);
 
-    //std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
     executor(call,
               7,
               fcf::Parallel::refArg(arr1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true)),
               fcf::Parallel::refArg(arr2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true) )
               );
-    //std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    //std::cout << "Total duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms"<< std::endl;
-    //std::cout << "Result stat [ minPackageDuration: " << stat.minPackageDuration <<
-    //                         "; maxPackageDuration: " << stat.maxPackageDuration <<
-    //                         "; packageDuration: "    << stat.packageDuration <<
-    //                         " ]" << std::endl;
     int loffset = (int)(call.size - call.packageSize);
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
@@ -117,27 +103,21 @@ void splitPackageTest() {
     FCF_PARALLEL_TEST(executor.getEngine("cpu").property("enable") == true);
     executor.initialize();
     fcf::Parallel::Call call;
-    fcf::Union stat;
+    fcf::Union state;
     call.name = "test_unit_split_pack_001";
     call.size = 1000*1000*100;
     call.split = true;
-    call.stat = &stat;
+    call.state = &state;
     call.packageSize = 1000*1000;
     std::vector<int> arr1(call.packageSize, 999999999);
     std::vector<int> arr2(call.packageSize, 999999999);
 
-    //std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
     executor(call,
               7,
               fcf::Parallel::refArg(arr1, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true)),
               fcf::Parallel::refArg(arr2, fcf::Parallel::ArgSplit(fcf::Parallel::PS_PACKAGE), fcf::Parallel::ArgUpload(true) )
               );
-    //std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    //std::cout << "Total duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms"<< std::endl;
-    //std::cout << "Result stat [ minPackageDuration: " << stat.minPackageDuration <<
-    //                         "; maxPackageDuration: " << stat.maxPackageDuration <<
-    //                         "; packageDuration: "    << stat.packageDuration <<
-    //                         " ]" << std::endl;
+
     int loffset = (int)(call.size - call.packageSize);
     for(int i = 0; i < (int)call.packageSize; ++i) {
       FCF_PARALLEL_TEST(arr1[i] == loffset + i);
