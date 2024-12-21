@@ -15,7 +15,7 @@ git clone --recursive https://github.com/fcf-framework/fcfParallel.git
 
 ### Simple example
 
-A simple example of overlaying blur in a BMP file. An example is available in the repository https://github.com/fcf-framework/fcfParallelExamples.git
+The simple example of overlaying blur in a BMP file. The example is available in the repository https://github.com/fcf-framework/fcfParallelExamples.git
 
 Since the library is implemented in the form of header files, first you need to announce its implementation. It is advisable to do this in a separate file so as not to reassemble each time.
 
