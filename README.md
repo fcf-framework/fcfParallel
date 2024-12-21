@@ -53,7 +53,7 @@ Transfer of arguments to operator() method:
 
 1. The transfer of the argument by value is done simply by transferring the value.
 
-2. If the argument of the function `FCF_PARALLEL_MAIN` is a pointer and does not require a calculation result, then you need to use the function `fcf:::Parallel:::refArg` to transfer data. The source data can be either an index or an object `std::vector`.
+2. If the argument of the function `FCF_PARALLEL_MAIN` is a pointer and does not require a calculation result, then you need to use the function `fcf:::Parallel:::refArg` to transfer data. The source data can be either an pointer or an object `std::vector`.
 
 3. If the argument is a pointer in the memory of which the result of the calculation is recorded, then the function `fcf::::Parallel:::refArg` should contain the following parameters when transmitting the argument:
 
