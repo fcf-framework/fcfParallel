@@ -17,11 +17,11 @@ git clone --recursive https://github.com/fcf-framework/fcfParallel.git
 
 The simple example of overlaying blur in a BMP file. The example is available in the repository https://github.com/fcf-framework/fcfParallelExamples.git
 
+**impl.cpp file**
+
 Since the library is implemented in the form of header files, first you need to announce its implementation. 
 To do this, you need to connect the header file `fcfParallel/parallel.hpp` with the declared macro `FCF_PARALLEL_IMPLEMENTATION` (only for fcfParallel library) or `FCF_IMPLEMENTATION` (for all libraries).
 It is advisable to do this in a separate file so as not to reassemble each time.
-
-**impl.cpp file**
 
 ```c++
 #define FCF_IMPLEMENTATION
@@ -29,15 +29,15 @@ It is advisable to do this in a separate file so as not to reassemble each time.
 #include <fcfParallel/parallel.hpp>
 ```
 
+**main.cpp file**
+
 We now proceed to the main programm.
 
 The parallel computation subroutine is declared the macro FCF_PARALLEL_UNIT. The first parameter is the name of the unit, and the second will be the code for the implementation of the action.
 
-The subroutine should contain a main function called FCF_PARALLEL_MAIN. The first argument of this function should be a pointer to the ‘FCFParallelTask’ structure, which contains progress information. The rest of the argument is set by the developer.
+The subroutine should contain a main function called FCF_PARALLEL_MAIN. The first argument of this function should be a pointer to the `FCFParallelTask` structure, which contains progress information. The rest of the argument is set by the developer.
 
 When transferring arguments by pointer from the main program to FCF_PARALLEL_MAIN, it is necessary to use the macro “FCF_PARALLEL_GLOBAL” when declaring them, which is analogous to the specificator `__global__` of the OpenCL compiler.
-
-**main.cpp file**
 
 ```c++
 #include <iostream>
