@@ -33,11 +33,49 @@ It is advisable to do this in a separate file so as not to reassemble each time.
 
 We now proceed to the main programm.
 
+*Declaring a handler function*
+
 The parallel computation subroutine is declared the macro FCF_PARALLEL_UNIT. The first parameter is the name of the unit, and the second will be the code for the implementation of the action.
 
 The subroutine should contain a main function called FCF_PARALLEL_MAIN. The first argument of this function should be a pointer to the `FCFParallelTask` structure, which contains progress information. The rest of the argument is set by the developer.
 
-When transferring arguments by pointer from the main program to FCF_PARALLEL_MAIN, it is necessary to use the macro “FCF_PARALLEL_GLOBAL” when declaring them, which is analogous to the specificator `__global__` of the OpenCL compiler.
+When transferring arguments by pointer from the main program to `FCF_PARALLEL_MAIN`, it is necessary to use the macro `FCF_PARALLEL_GLOBAL` when declaring them, which is analogous to the specificator `__global__` of the OpenCL compiler.
+
+*Launching parallel computing*
+
+To run parallel calculations, the `fcf:::Parallel::Executor` object is used.
+
+To perform the action, call the operator() method.
+
+The first argument is a reference to the object `fcf:::Parallel::Call`, which contains action parameters. The remaining arguments correspond to the 1-N arguments of the `FCF_PARALLEL_MAIN` function.
+
+Transfer of arguments to operator() method:
+
+1. The transfer of the argument by value is done simply by transferring the value.
+
+2. If the argument of the function `FCF_PARALLEL_MAIN` is a node and does not require a calculation result, then you need to use the function `fcf:::Parallel:::refArg` to transfer data. The source data can be either an index or an object 'std::vector'.
+
+3. If the argument is a pointer in the memory of which the result of the calculation is recorded, then the function fcf::::Parallel:::refArg should contain the following parameters when transmitting the argument:
+	```
+	fcf::Parallel::refArg(
+	  outputRGB,
+
+	  // Indicates that after performing calculations,
+	  // you need to unload the result
+	  fcf::Parallel::ArgUpload(true),
+
+	  // When enabling upload, you must specify
+	  // the split parameter.
+	  // This parameter indicates that the data during unloading is divided
+	  // between devices, and their size corresponds to the number of iterations.
+	  fcf::Parallel::ArgSplit(fcf::Parallel::PS_FULL),
+
+	  // Number of elements per iteration
+	  fcf::Parallel::ArgSplitSize(3)
+    )
+	```
+
+The example of the program itself is below.
 
 ```c++
 #include <iostream>
@@ -176,3 +214,18 @@ int main(int a_argc, char* a_argv[]){
   return 0;
 }
 ```
+
+**CMakeLists.txt file (Build)**
+
+The build parameters are presented on the basis of CMake.
+
+In order to collect this example, you will need to link and include OpenCL. (https://github.com/KhronosGroup/OpenCL-SDK).
+
+ ```cmake
+find_package(OpenCL REQUIRED)
+include_directories(${OpenCL_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/libraries)
+
+add_executable("blur" impl.cpp main.cpp)
+target_link_libraries("blur" ${OpenCL_LIBRARY})
+ ```
