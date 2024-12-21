@@ -86,6 +86,11 @@ namespace fcf {
             call = &reserveCall;
           }
 
+          std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint;
+          if (a_call.state) {
+            startTimePoint = std::chrono::high_resolution_clock::now();
+          }
+
           bool autoSplit = false;
           tuple_args_type args{ArgResolver<TArgPack>::resolve(a_argPack)...};
           BaseArg* pargs[sizeof...(TArgPack)];
@@ -115,7 +120,7 @@ namespace fcf {
           fcf::Parallel::Details::Distributor::Call dcall;
           dcall.name        = call->name;
           dcall.count       = call->size;
-          dcall.split       = call->split == ES_AUTO ? autoSplit 
+          dcall.split       = call->split == ES_AUTO ? autoSplit
                                                      : call->split == ES_ENABLE;
           dcall.packageSize = call->packageSize;
           dcall.packageTime = 0;
@@ -144,6 +149,9 @@ namespace fcf {
           _distributor.call(dcall);
 
           if (call->state) {
+            (*call->state)["duration"] = (unsigned long long)std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                          std::chrono::high_resolution_clock::now() - startTimePoint
+                                        ).count();
             (*call->state)["devices"] = Union(UT_VECTOR);
             Union& udevices = (*call->state)["devices"];
             Details::tupleLoop(
@@ -190,7 +198,6 @@ namespace fcf {
 
               }
             );
-
           }
 
         }
