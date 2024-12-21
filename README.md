@@ -220,7 +220,7 @@ int main(int a_argc, char* a_argv[]){
 
 The build parameters are presented on the basis of CMake.
 
-In order to collect this example, you will need to link and include OpenCL. (https://github.com/KhronosGroup/OpenCL-SDK).
+In order to build this example, you will need to link and include OpenCL. (https://github.com/KhronosGroup/OpenCL-SDK).
 
  ```cmake
 find_package(OpenCL REQUIRED)
