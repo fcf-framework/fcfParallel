@@ -137,6 +137,12 @@ void distributorTest(){
         FCF_PARALLEL_TEST(u == "1:0" || u == "3:0" || u == "4:0");
       }
     }
+    if (counter != 3){
+      for(auto item : items) {
+        std::cout << item << std::endl;
+      }
+      std::cout << counter << std::endl;
+    }
     FCF_PARALLEL_TEST(counter == 3);
   }
 }
