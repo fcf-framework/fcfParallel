@@ -41,6 +41,24 @@ namespace fcf {
           return sizeof...(EnginePack);
         }
 
+        size_t enableEngines(bool a_enable, const char* a_type = 0, int a_count = -1){
+          size_t result = 0;
+          for(size_t i = 0; i < sizeof...(EnginePack); ++i) {
+            bool en = !a_enable;
+            for(Union& udev : _enginesv[i]->property("devices")) {
+              if (!a_type || !a_type[0] || udev["type"] == a_type) {
+                if (!en){
+                  en = a_enable;
+                  _enginesv[i]->property("enable") = a_enable;
+                }
+                udev["enable"] = a_enable;
+                ++result;
+              }
+            }
+          }
+          return result;
+        }
+
         BaseEngine& getEngine(const char* a_engineName){
           for(size_t i = 0; i < sizeof...(EnginePack); ++i) {
             if (_enginesv[i]->property("name").template get<std::string>() == a_engineName) {
