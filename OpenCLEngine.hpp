@@ -721,7 +721,7 @@ namespace fcf {
           functions += "\n\n";
         }
 
-        return pci.prefix + functions + pci.code + pci.suffix;
+        return pci.prefix + functions + pci.body + pci.code + pci.suffix;
       }
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 

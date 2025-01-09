@@ -30,6 +30,7 @@ namespace fcf {
           BaseEngine*                                      engine;
           std::list< std::pair<std::string, std::string> > functions;
           std::string                                      prefix;
+          std::string                                      body;
           std::string                                      suffix;
           std::string                                      code;
         };
