@@ -21,7 +21,6 @@ void splitPackageTest();
 void exfuncTest();
 
 int main(int, char*[]) {
-  /*
   fillTest();
   functionTest();
   distributorTest();
@@ -34,7 +33,6 @@ int main(int, char*[]) {
   charTypesTest();
   floatTypesTest();
   doubleTypesTest();
-  */
   exfuncTest();
   std::cout << "Complete!" << std::endl;
   return 0;
