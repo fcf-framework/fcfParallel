@@ -62,10 +62,10 @@
     typedef double fcf_float64;
   #endif // #ifndef FCF_FLOAT64_TYPE
 
-  #ifndef FCF_FLOAT80_TYPE
-    #define FCF_FLOAT80_TYPE_INDEX 11
-    #define FCF_FLOAT80_TYPE fcf_float80
-    typedef long double fcf_float80;
+  #ifndef FCF_FLOAT128_TYPE
+    #define FCF_FLOAT128_TYPE_INDEX 11
+    #define FCF_FLOAT128_TYPE fcf_float128
+    typedef long double fcf_float128;
   #endif // #ifndef FCF_FLOAT80_TYPE
 
 #endif // #ifndef ___FCF__PARALLEL__TYPE_HPP___
