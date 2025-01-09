@@ -66,6 +66,6 @@
     #define FCF_FLOAT128_TYPE_INDEX 11
     #define FCF_FLOAT128_TYPE fcf_float128
     typedef long double fcf_float128;
-  #endif // #ifndef FCF_FLOAT80_TYPE
+  #endif // #ifndef FCF_FLOAT128_TYPE
 
 #endif // #ifndef ___FCF__PARALLEL__TYPE_HPP___
