@@ -22,13 +22,13 @@ namespace fcf {
         inline Registrator(){}
 
         template<typename TFunction>
-        Registrator(const char* a_name, const char* a_code, TFunction a_func) {
-          add(a_name, a_code, a_func);
+        Registrator(const char* a_name, const char* a_options, const char* a_code, TFunction a_func) {
+          add(a_name, a_options, a_code, a_func);
         }
 
         template<typename TFunction>
-        void add(const char* a_name, const char* a_code, TFunction a_func) {
-          Details::__fcf_parallel_units.units[a_name] = PUnit(new Unit{a_name, a_code, a_func});
+        void add(const char* a_name, const char* a_options, const char* a_code, TFunction a_func) {
+          Details::__fcf_parallel_units.units[a_name] = PUnit(new Unit{a_name, a_options, a_code, a_func});
         }
 
         PUnit get(const char* a_name);

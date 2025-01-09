@@ -5,6 +5,7 @@
 
 FCF_PARALLEL_UNIT(
   types_int64_test,
+  {},
   void FCF_PARALLEL_MAIN(
     const FCFParallelTask* a_task,
     fcf_int64 a_sourceValue,
@@ -19,6 +20,7 @@ FCF_PARALLEL_UNIT(
 
 FCF_PARALLEL_UNIT(
   types_unsigned_int64_test,
+  {},
   void FCF_PARALLEL_MAIN(
     const FCFParallelTask* a_task,
     fcf_uint64 a_sourceValue,

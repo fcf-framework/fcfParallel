@@ -35,7 +35,7 @@ We now proceed to the main programm.
 
 *Declaring a handler function*
 
-The parallel computation subroutine is declared the macro FCF_PARALLEL_UNIT. The first parameter is the name of the unit, and the second will be the code for the implementation of the action.
+The parallel computation subroutine is declared the macro FCF_PARALLEL_UNIT. The first parameter is the name of the unit, the second is an options (JS/JSON object) and the third will be the code for the implementation of the action.
 
 The subroutine should contain a main function called FCF_PARALLEL_MAIN. The first argument of this function should be a pointer to the `FCFParallelTask` structure, which contains progress information. The rest of the argument is set by the developer.
 
@@ -88,6 +88,7 @@ The example of the program itself is below.
 //
 FCF_PARALLEL_UNIT(
     blur,
+    {},
     void FCF_PARALLEL_MAIN(const FCFParallelTask* a_task,
                            int a_blur,
                            int a_width,

@@ -5,6 +5,7 @@
 
 FCF_PARALLEL_UNIT(
     test_unit_001,
+    {},
     void FCF_PARALLEL_MAIN(const FCFParallelTask* a_task, int a_index, FCF_PARALLEL_GLOBAL int* a_array1, FCF_PARALLEL_GLOBAL int* a_array2){
       a_array1[a_task->lowIndex] = a_task->lowIndex;
       a_array2[a_task->lowIndex] = a_index;
@@ -13,6 +14,7 @@ FCF_PARALLEL_UNIT(
 
 FCF_PARALLEL_UNIT(
     test_unit_002,
+    {},
     void FCF_PARALLEL_MAIN(const FCFParallelTask* a_task, int a_index, FCF_PARALLEL_GLOBAL int* a_array1,  unsigned int a_arrayc1){
       a_array1[a_task->lowIndex%a_arrayc1] = a_index;
     }

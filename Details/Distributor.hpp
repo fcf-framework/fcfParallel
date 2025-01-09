@@ -15,6 +15,7 @@
 #include "../include.hpp"
 #include "../macro.hpp"
 #include "../Call.hpp"
+#include "../Extension.hpp"
 #include "fill.hpp"
 #include "Function.hpp"
 #include "../macro.hpp"
@@ -44,17 +45,18 @@ namespace fcf {
           };
 
           struct Call {
-            const char*             name;
-            unsigned long long      count;
-            bool                    split;
-            Union*                  state;
-            unsigned long long      packageSize;
-            unsigned long long      packageTime;
-            void                    (*function)(const SubTask&, void*);
-            void*                   userData;
-            std::string             lastError;
-            std::list<DeviceIndex>  ignoreDevice; // Used for the first time at the first call
-                                                  // for a given name and used for the rest of the time¤
+            const char*              name;
+            unsigned long long       count;
+            bool                     split;
+            Union*                   state;
+            unsigned long long       packageSize;
+            unsigned long long       packageTime;
+            void                     (*function)(const SubTask&, void*);
+            void*                    userData;
+            std::string              lastError;
+            std::list<ExtensionInfo> extensions;
+            std::list<DeviceIndex>   ignoreDevice; // Used for the first time at the first call
+                                                   // for a given name and used for the rest of the time¤
             inline Call()
               : name(0)
               , count(0)

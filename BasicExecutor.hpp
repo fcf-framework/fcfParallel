@@ -53,7 +53,13 @@ namespace fcf {
                 }
                 udev["enable"] = a_enable;
                 ++result;
+                if (a_count > 0 && result >= a_count) {
+                  break;
+                }
               }
+            }
+            if (a_count > 0 && result >= a_count) {
+              break;
             }
           }
           return result;
@@ -145,6 +151,30 @@ namespace fcf {
           dcall.function    = _handler;
           dcall.userData    = (void*)this;
           dcall.state       = call->state;
+
+          PUnit punit = Registrator().get(dcall.name);
+          if (punit->options["extensions"].is(UT_VECTOR)){
+            for(Union& extension : punit->options["extensions"]){
+              Union* name = 0;
+              Union  options;
+              if (extension.is(UT_MAP)) {
+                if (extension["name"].is(UT_STRING)){
+                  name = &extension["name"];
+                }
+                options = extension;
+              } else if (extension.is(UT_STRING)){
+                name = &extension;
+              }
+              if (name && !name->get<std::string>().empty()) {
+                ExtensionInfo ei{
+                  Extension::create((std::string)*name),
+                  options
+                };
+                dcall.extensions.push_back(ei);
+              }
+            }
+          }
+
 
           Details::tupleLoop(
             _engines,

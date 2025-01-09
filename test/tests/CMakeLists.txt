@@ -8,6 +8,7 @@ add_executable("parallel-test" impl.cpp
                                inner/FunctionTest.cpp
                                engine/SimpleEngineTest.cpp
                                engine/splitPackageTest.cpp
+                               extension/exfuncTest.cpp
                                types/charTypesTest.cpp
                                types/shortTypesTest.cpp
                                types/intTypesTest.cpp

@@ -68,7 +68,7 @@ namespace fcf {
             cl_kernel  kernel;
             DevArgs    args;
 
-            DevCommand(size_t a_engineIndex, const Call& a_call, const char* a_code, PDevice a_device);
+            DevCommand(size_t a_engineIndex, const Call& a_call, Details::Distributor::Call& a_distributorCall, const char* a_code, PDevice a_device);
             ~DevCommand();
           private:
             DevCommand();
@@ -97,7 +97,7 @@ namespace fcf {
         virtual void applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc);
         virtual void execute(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, BaseArg** a_args, size_t a_argsc);
       protected:
-        std::string _prepareCode(std::string& a_code);
+        std::string _prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall);
 
         bool                                      _enable;
         std::vector<PDevice>                      _devices;
@@ -135,7 +135,7 @@ namespace fcf {
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      OpenCLEngine::DevCommand::DevCommand(size_t a_engineIndex, const Call& a_call, const char* a_code, PDevice a_device)
+      OpenCLEngine::DevCommand::DevCommand(size_t a_engineIndex, const Call& a_call, Details::Distributor::Call& a_distributorCall, const char* a_code, PDevice a_device)
         : compileProgram(0)
         , libraryProgram(0)
         , program(0)
@@ -543,11 +543,11 @@ namespace fcf {
             if (itCommand == pdevice->commands.end()){
               if (code.empty()){
                 PUnit punit = Registrator().get(a_call.name);
-                code = _prepareCode(punit->code);
+                code = _prepareCode(punit->code, a_distributorCall);
               }
               PDevCommand command;
               try {
-                command.reset(new DevCommand(_index, a_call, code.c_str(), pdevice));
+                command.reset(new DevCommand(_index, a_call, a_distributorCall, code.c_str(), pdevice));
               } catch(const std::exception& e) {
                 a_distributorCall.lastError = e.what();
               }
@@ -663,13 +663,15 @@ namespace fcf {
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      std::string OpenCLEngine::_prepareCode(std::string& a_code) {
-        std::string code = std::regex_replace(a_code, std::regex("FCF_PARALLEL_GLOBAL"), "__global");
+      std::string OpenCLEngine::_prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall) {
+        Extension::PrepareCodeInfo pci;
+        pci.engine = this;
+        pci.code = std::regex_replace(a_code, std::regex("FCF_PARALLEL_GLOBAL"), "__global");
 
-        Details::FunctionDescriptor fdf(code, "FCF_PARALLEL_MAIN", false);
-        Details::FunctionDescriptor fd(code, "FCF_PARALLEL_MAIN", true);
+        Details::FunctionDescriptor fdf(pci.code, "FCF_PARALLEL_MAIN", false);
+        Details::FunctionDescriptor fd(pci.code, "FCF_PARALLEL_MAIN", true);
 
-        std::string prefix = std::string() +
+        pci.prefix = std::string() +
           "struct _FCFParallelTask\n"
           "{\n"
           "  unsigned int lowIndex;\n"
@@ -706,14 +708,25 @@ namespace fcf {
           "    return; \n"
           "  }\n"
           "  FCF_PARALLEL_MAIN(&var_fcf_parallel_task" + (!fd.args.empty() ? ", " : "") + fd.args + ");\n"
-          "}\n"
+          "}\n\n"
           ;
-        return prefix + code;
+
+        for(ExtensionInfo& ei : a_distributorCall.extensions) {
+          ei.extension->prepareCode(ei.options, pci);
+        }
+
+        std::string functions;
+        for(std::pair<std::string, std::string>& func : pci.functions) {
+          functions += func.second;
+          functions += "\n\n";
+        }
+
+        return pci.prefix + functions + pci.code + pci.suffix;
       }
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      namespace Details { 
+      namespace Details {
         std::string getOpenCLBuildLog(cl_program a_program, cl_device_id a_deviceId) {
           size_t logSize = 0;
           cl_int iresult = clGetProgramBuildInfo(a_program, a_deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
@@ -734,7 +747,7 @@ namespace fcf {
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      namespace Details { 
+      namespace Details {
         std::string openCLErrorToString(int a_ec) {
           switch (a_ec) {
             case 0: return "CL_SUCCESS";

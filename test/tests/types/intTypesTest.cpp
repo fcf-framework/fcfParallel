@@ -3,6 +3,7 @@
 
 FCF_PARALLEL_UNIT(
   types_int_test,
+  {},
   void FCF_PARALLEL_MAIN(
     const FCFParallelTask* a_task,
     int a_sourceValue,
@@ -17,6 +18,7 @@ FCF_PARALLEL_UNIT(
 
 FCF_PARALLEL_UNIT(
   types_unsigned_int_test,
+  {},
   void FCF_PARALLEL_MAIN(
     const FCFParallelTask* a_task,
     unsigned int a_sourceValue,

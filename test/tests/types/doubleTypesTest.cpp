@@ -3,6 +3,7 @@
 
 FCF_PARALLEL_UNIT(
   types_double_test,
+  {},
   void FCF_PARALLEL_MAIN(
     const FCFParallelTask* a_task,
     fcf_float64 a_sourceValue,
