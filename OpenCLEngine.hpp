@@ -97,7 +97,7 @@ namespace fcf {
         virtual void applyArgs(bool a_first, const Call& a_call, BaseArg** a_args, size_t a_argsc);
         virtual void execute(const fcf::Parallel::Details::Distributor::SubTask& a_subtask, BaseArg** a_args, size_t a_argsc);
       protected:
-        std::string _prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall);
+        std::string _prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall, size_t a_deviceIndex);
 
         bool                                      _enable;
         std::vector<PDevice>                      _devices;
@@ -537,13 +537,13 @@ namespace fcf {
         BaseEngine::prepare(a_call, a_distributorCall, a_args, a_argsc);
 
         std::string code;
-        for(PDevice& pdevice : _devices){
+        for(PDevice& pdevice : _devices) {
           if (pdevice->enable) {
             DevCommands::iterator itCommand = pdevice->commands.find(a_call.name);
             if (itCommand == pdevice->commands.end()){
               if (code.empty()){
                 PUnit punit = Registrator().get(a_call.name);
-                code = _prepareCode(punit->code, a_distributorCall);
+                code = _prepareCode(punit->code, a_distributorCall, pdevice->deviceIndex);
               }
               PDevCommand command;
               try {
@@ -663,9 +663,10 @@ namespace fcf {
     #endif // #ifdef FCF_PARALLEL_IMPLEMENTATION
 
     #ifdef FCF_PARALLEL_IMPLEMENTATION
-      std::string OpenCLEngine::_prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall) {
+      std::string OpenCLEngine::_prepareCode(std::string& a_code, Details::Distributor::Call& a_distributorCall, size_t a_deviceIndex) {
         Extension::PrepareCodeInfo pci;
-        pci.engine = this;
+        pci.engine      = this;
+        pci.deviceIndex = a_deviceIndex;
         pci.code = std::regex_replace(a_code, std::regex("FCF_PARALLEL_GLOBAL"), "__global");
 
         Details::FunctionDescriptor fdf(pci.code, "FCF_PARALLEL_MAIN", false);

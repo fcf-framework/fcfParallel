@@ -28,6 +28,7 @@ namespace fcf {
 
         struct PrepareCodeInfo {
           BaseEngine*                                      engine;
+          size_t                                           deviceIndex;
           std::list< std::pair<std::string, std::string> > functions;
           std::string                                      prefix;
           std::string                                      body;
