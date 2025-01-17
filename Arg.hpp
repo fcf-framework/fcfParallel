@@ -2,7 +2,10 @@
 #define ___FCF__PARALLEL__ARG_HPP___
 
 #include "macro.hpp"
-#include "type.hpp"
+
+#define FCF_PARALLEL_INCLUDE_LIBRARY fcfBasis
+#define FCF_PARALLEL_INCLUDE_FILE nativeType.hpp
+#include "include.hpp"
 
 #include <string>
 #include <set>

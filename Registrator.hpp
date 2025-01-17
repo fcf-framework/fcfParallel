@@ -3,7 +3,11 @@
 #include <stdexcept>
 #include <map>
 #include "macro.hpp"
-#include "type.hpp"
+
+#define FCF_PARALLEL_INCLUDE_LIBRARY fcfBasis
+#define FCF_PARALLEL_INCLUDE_FILE nativeType.hpp
+#include "include.hpp"
+
 #include "Unit.hpp"
 
 namespace fcf {

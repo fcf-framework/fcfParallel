@@ -53,6 +53,10 @@
   #endif
 #endif
 
+#define FCF_PARALLEL_STR_L1(a_arg1) #a_arg1
+#define FCF_PARALLEL_STR(a_arg1) FCF_PARALLEL_STR_L1(a_arg1)
+
+
 #define FCF_PARALLEL_UNIT(a_name, a_options, a_code) \
   namespace fcf_parallel_unit_nn_##a_name { \
     using namespace std;\
